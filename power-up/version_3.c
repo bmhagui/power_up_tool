@@ -1,6 +1,3 @@
-/*#include "/home/bhagui/stage_52/power-up/xdotool-master/xdo.h"
-  #include "/home/bhagui/stage_52/power-up/xdotool-master/xdotool.h"*/
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/inotify.h>
@@ -11,14 +8,43 @@
 #define EVENT_SIZE  ( sizeof (struct inotify_event) )
 #define EVENT_BUF_LEN     ( 1024 * ( EVENT_SIZE + 16 ) )
 
-int main( )
-{
+struct sigaction action;
+pid_t pid, active_pid;
+int fd;
+int wd;
+FILE *fp;
 
+void activate_all(){
+  rewind(fp);
+  while( !feof(fp)) {
+    fscanf(fp, "%d", &pid);
+    kill(pid, SIGCONT);
+  }
+}
+
+void hand(int sig)
+{
+  if (sig == SIGINT){
+    printf("\nYou have pressed Ctrl+C.\nActivating all processes, cleaning up and exiting.\n");
+    activate_all();
+    inotify_rm_watch( fd, wd );
+    close(fd);
+    fclose(fp);
+    exit(0);
+  }
+  else{
+    printf("Erreur de gestion de signal SIGINT\n");
+    exit(-1);
+  }
+}
+
+int main()
+{ 
   int length, i = 0;
-  int fd;
-  int wd;
   char buffer[EVENT_BUF_LEN];
-  pid_t pid, active_pid;
+  
+  action.sa_handler = hand;
+  sigaction(SIGINT,&action,NULL);
   
   fd = inotify_init();
   if ( fd < 0 ) {
@@ -27,7 +53,7 @@ int main( )
   
   wd = inotify_add_watch( fd, "/home/bhagui/stage_52/power-up/notif/", IN_MODIFY);
   
-  FILE *fp = fopen("/home/bhagui/stage_52/power-up/open_windows.txt","r");
+  fp = fopen("/home/bhagui/stage_52/power-up/open_windows.txt","r");
   if(fp==NULL){
     printf("cannot open file.\n");
   }
@@ -48,7 +74,6 @@ int main( )
 	  system("wmctrl -l -p | cut -f4 -d' ' >> open_windows.txt");
 	  
 	  fscanf(fp, "%d", &active_pid);
-	  
 	  while( !feof(fp)) {
 	    fscanf(fp, "%d", &pid); 
 	    if (pid == active_pid){
@@ -64,8 +89,4 @@ int main( )
     }
     rewind(fp);
   }
-  
-  inotify_rm_watch( fd, wd );
-  close(fd);
-  fclose(fp);
 }
