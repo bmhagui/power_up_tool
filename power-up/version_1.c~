@@ -1,0 +1,10 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+
+int main(int argc, char *argv[])
+
+{
+  system("/home/bhagui/stage_52/power-up/xprop.sh");
+  return 0;
+}
