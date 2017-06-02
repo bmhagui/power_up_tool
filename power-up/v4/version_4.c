@@ -112,7 +112,7 @@ int main()
 { 
   int length, i = 0;
   char buffer[EVENT_BUF_LEN];
-
+  system("bash ~/power_up_tool/power-up/v4/config/get_pid.sh");
   Liste *the_list = create_list();
 
   action.sa_handler = hand;
@@ -142,9 +142,11 @@ int main()
 	if ( event->mask & IN_MODIFY ) {
 	  printf( "%s has been modified, changing suspended windows.\n", event->name );
 
-	  system("xdotool getwindowfocus getwindowpid > ~/stage_52/power-up/v4/config/open_windows.txt");
-	  system("wmctrl -l -p | cut -f4 -d' ' >> ~/stage_52/power-up/v4/config/open_windows.txt");
-	  
+	  system("xdotool getwindowfocus getwindowpid > ~/power_up_tool/power-up/v4/config/open_windows.txt");
+	  system("wmctrl -l -p | cut -f4 -d' ' >> ~/power_up_tool/power-up/v4/config/open_windows.txt");
+	  system("bash ~/power_up_tool/power-up/v4/config/get_pid.sh");
+	  the_list = create_list();
+  
 	  fscanf(fp, "%d", &active_pid);
 	  while( !feof(fp)) {
 	    fscanf(fp, "%d", &pid); 
