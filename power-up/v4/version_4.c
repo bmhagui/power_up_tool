@@ -96,9 +96,9 @@ Liste *create_list(){
   
   Liste *mylist = initialisation();
   
-  fl = fopen("/home/bhagui/stage_52/power-up/config/conf_pid.txt","r");
+  fl = fopen("./config/conf_pid.txt","r");
   if(fl==NULL){
-    printf("cannot open file conf_pid.txt.\n");
+    perror("cannot open file conf_pid.txt");
   }
 
   while( !feof(fl)) {
@@ -123,11 +123,11 @@ int main()
     perror( "inotify_init" );
   }
   
-  wd = inotify_add_watch( fd, "/home/bhagui/stage_52/power-up/notif/", IN_MODIFY);
+  wd = inotify_add_watch( fd, "./config/notif/", IN_MODIFY);
   
-  fp = fopen("/home/bhagui/stage_52/power-up/config/open_windows.txt","r");
+  fp = fopen("./config/open_windows.txt","r");
   if(fp==NULL){
-    printf("cannot open file open_windows.txt.\n");
+    perror("cannot open file open_windows.txt");
   }
   
   while(1){
@@ -142,8 +142,8 @@ int main()
 	if ( event->mask & IN_MODIFY ) {
 	  printf( "%s has been modified, changing suspended windows.\n", event->name );
 
-	  system("xdotool getwindowfocus getwindowpid > ~/stage_52/power-up/config/open_windows.txt");
-	  system("wmctrl -l -p | cut -f4 -d' ' >> ~/stage_52/power-up/config/open_windows.txt");
+	  system("xdotool getwindowfocus getwindowpid > ~/stage_52/power-up/v4/config/open_windows.txt");
+	  system("wmctrl -l -p | cut -f4 -d' ' >> ~/stage_52/power-up/v4/config/open_windows.txt");
 	  
 	  fscanf(fp, "%d", &active_pid);
 	  while( !feof(fp)) {
