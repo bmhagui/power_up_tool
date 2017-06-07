@@ -1,6 +1,6 @@
 #!/bin/bash`
 
-> ~/power_up_tool/power-up/v4/config/conf_pid.txt
+#> ~/power_up_tool/power-up/v4/config/conf_pid.txt
 while read -r line
 do
 	name="$line"
