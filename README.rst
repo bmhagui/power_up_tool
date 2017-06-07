@@ -46,7 +46,7 @@ Keyboard Shortcuts
 
 The folder /power_up_tool/bin has several bash files. Assign a keyboard shortcut to each of these files and the shortcuts will have the following functionalities:
 
-1. dont_stop_this.sh: Ajoute le PID de la fênetre active à la liste des PIDS des processus à ne pas mettre en veille.
-2. resume.sh: Envoi un signal SIGCONT au processus de la fênetre active. (Le redémarrer.)
-3. stop.sh: Envoi un signal SIGSTOP au processus de la fênetre active. (Le mettre en veille.)
-4. stop_all.sh: Envoi un signal SIGSTOP a tout les processus sauf celle lié à la fênetre active. (Mettre tout en veille sauf processus active.)
+1. **dont_stop_this.sh:** Ajoute le PID de la fênetre active à la liste des PIDS des processus à ne pas mettre en veille.
+2. **resume.sh:** Envoi un signal SIGCONT au processus de la fênetre active. (Le redémarrer.)
+3. **stop.sh:** Envoi un signal SIGSTOP au processus de la fênetre active. (Le mettre en veille.)
+4. **stop_all.sh:** Envoi un signal SIGSTOP a tout les processus sauf celle lié à la fênetre active. (Mettre tout en veille sauf processus active.)

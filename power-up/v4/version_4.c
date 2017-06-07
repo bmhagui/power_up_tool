@@ -170,7 +170,7 @@ int main()
     /*read the change event one by one and process it accordingly.*/
     while ( i < length ) {     struct inotify_event *event = ( struct inotify_event * ) &buffer[ i ];     if ( event->len ) {
 	if ( event->mask & IN_MODIFY ) {
-	  printf( "%s has been modified, changing suspended windows.\n", event->name );
+	  //printf( "%s has been modified, changing suspended windows.\n", event->name );
 
 	  system("xdotool getwindowfocus getwindowpid > ~/power_up_tool/power-up/v4/config/open_windows.txt");
 	  system("wmctrl -l -p | cut -f4 -d' ' >> ~/power_up_tool/power-up/v4/config/open_windows.txt");
@@ -195,7 +195,7 @@ int main()
     rewind(fp);
     second = time(NULL);
     if (second-first >= REFRESH_RATE_S){
-      printf("Waking up chosen processes\n");
+      //printf("Waking up chosen processes\n");
       activate_list(refresh_list);
       first = time(NULL);
     }
