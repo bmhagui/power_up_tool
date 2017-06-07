@@ -5,6 +5,7 @@
 #include <sys/types.h>
 #include <signal.h>
 #include <stdbool.h>
+#include <string.h>
 
 #define EVENT_SIZE  ( sizeof (struct inotify_event) )
 #define EVENT_BUF_LEN     ( 1024 * ( EVENT_SIZE + 16 ) )
@@ -95,8 +96,13 @@ bool member(pid_t cpid, Liste *liste){
 Liste *create_list(){
   
   Liste *mylist = initialisation();
+
+  char src[100], dest[100];
+  strcpy(dest, getenv("HOME"));
+  strcpy(src, "/power_up_tool/power-up/v4/config/conf_pid.txt");
+  strcat(dest, src);
   
-  fl = fopen("./config/conf_pid.txt","r");
+  fl = fopen(dest,"r");
   if(fl==NULL){
     perror("cannot open file conf_pid.txt");
   }
@@ -122,10 +128,17 @@ int main()
   if ( fd < 0 ) {
     perror( "inotify_init" );
   }
+
+  char src[100], src2[100], notify[100], open_windows[100];
+  strcpy(notify, getenv("HOME"));
+  strcpy(open_windows, getenv("HOME"));
+  strcpy(src, "/power_up_tool/power-up/v4/config/notif/");
+  strcpy(src2, "/power_up_tool/power-up/v4/config/open_windows.txt");
+  strcat(notify, src);
+  strcat(open_windows, src2);
   
-  wd = inotify_add_watch( fd, "./config/notif/", IN_MODIFY);
-  
-  fp = fopen("./config/open_windows.txt","r");
+  wd = inotify_add_watch( fd, notify, IN_MODIFY); 
+  fp = fopen(open_windows,"r");
   if(fp==NULL){
     perror("cannot open file open_windows.txt");
   }
