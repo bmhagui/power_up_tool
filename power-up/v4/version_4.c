@@ -6,9 +6,11 @@
 #include <signal.h>
 #include <stdbool.h>
 #include <string.h>
+#include <time.h>
 
 #define EVENT_SIZE  ( sizeof (struct inotify_event) )
 #define EVENT_BUF_LEN     ( 1024 * ( EVENT_SIZE + 16 ) )
+#define REFRESH_RATE_S 5
 
 struct sigaction action;
 pid_t pid, active_pid;
@@ -51,6 +53,16 @@ struct Liste{
     Element *first;
 };
 
+void activate_list(Liste *liste){
+  if (liste == NULL){
+    exit(EXIT_FAILURE);
+  }
+  Element *actuel = liste->first;
+  while (actuel != NULL){
+    kill(actuel->pid,SIGCONT);
+    actuel = actuel->next;
+  }
+}
 
 Liste *initialisation(){
   Liste *liste = malloc(sizeof(*liste));
@@ -93,13 +105,13 @@ bool member(pid_t cpid, Liste *liste){
   return res;
 }
 
-Liste *create_list(){
+Liste *create_list(char *file_path){
   
   Liste *mylist = initialisation();
 
   char src[100], dest[100];
   strcpy(dest, getenv("HOME"));
-  strcpy(src, "/power_up_tool/power-up/v4/config/conf_pid.txt");
+  strcpy(src, file_path);
   strcat(dest, src);
   
   fl = fopen(dest,"r");
@@ -116,11 +128,16 @@ Liste *create_list(){
 
 int main()
 { 
+  time_t first, second;
+  first = time(NULL);
+  
   int length, i = 0;
   char buffer[EVENT_BUF_LEN];
+  
   system("bash ~/power_up_tool/power-up/v4/config/get_pid.sh");
-  Liste *the_list = create_list();
-
+  Liste *the_list = create_list("/power_up_tool/power-up/v4/config/conf_pid.txt");
+  Liste *refresh_list = create_list("/power_up_tool/power-up/v4/config/refresh_pid.txt");
+  
   action.sa_handler = hand;
   sigaction(SIGINT,&action,NULL);
   
@@ -158,8 +175,9 @@ int main()
 	  system("xdotool getwindowfocus getwindowpid > ~/power_up_tool/power-up/v4/config/open_windows.txt");
 	  system("wmctrl -l -p | cut -f4 -d' ' >> ~/power_up_tool/power-up/v4/config/open_windows.txt");
 	  system("bash ~/power_up_tool/power-up/v4/config/get_pid.sh");
-	  the_list = create_list();
-  
+	  the_list = create_list("/power_up_tool/power-up/v4/config/conf_pid.txt");
+	  refresh_list = create_list("/power_up_tool/power-up/v4/config/refresh_pid.txt");
+	  
 	  fscanf(fp, "%d", &active_pid);
 	  while( !feof(fp)) {
 	    fscanf(fp, "%d", &pid); 
@@ -175,5 +193,11 @@ int main()
       i += EVENT_SIZE + event->len;
     }
     rewind(fp);
+    second = time(NULL);
+    if (second-first >= REFRESH_RATE_S){
+      printf("Waking up chosen processes\n");
+      activate_list(refresh_list);
+      first = time(NULL);
+    }
   }
 }
