@@ -39,6 +39,7 @@ How to use:
 1. Add names of applications that you dont want to suspend or to refresh regurlay to their respective configuration files.
 2. Compile (using ``make clean all``) and launch the executable generated of the latest version of the application. 
 3. Launch the bash file xprop.sh in a separate terminal.
+
 -------------------
 Keyboard Shortcuts
 -------------------
