@@ -96,3 +96,10 @@ Liste *create_list(char *file_path){
   }
   return mylist; 
 }
+
+void print_usage(void) {
+    printf("-----Help-----\nHere is how to use the flags integrated in Power-up:\n\n");
+    printf("--add-white or -w to add the current window's PID to the application's white list.\n");
+    printf("--add-black or -b to add the current window's PID to the application's black list.\n\n");
+    printf("--kill or -k to brutally terminate the powerup tool running in the background.\n\n");
+}

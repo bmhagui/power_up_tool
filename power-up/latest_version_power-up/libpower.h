@@ -7,6 +7,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <time.h>
+#include <getopt.h>
 
 #define EVENT_SIZE  ( sizeof (struct inotify_event) )
 #define EVENT_BUF_LEN     ( 1024 * ( EVENT_SIZE + 16 ) )
@@ -42,3 +43,5 @@ void insertion(Liste *liste, pid_t new_pid);
 bool member(pid_t cpid, Liste *liste);
 
 Liste *create_list(char *file_path);
+
+void print_usage(void);

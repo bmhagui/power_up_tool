@@ -14,6 +14,8 @@ These applications will be refreshed atleast every 5 seconds by default. If you 
 Requirements:
 -------------
 
+* xprop and X11 (installed by default)
+  
 * xdotool
 
 .. code:: sh
@@ -25,12 +27,6 @@ Requirements:
 .. code:: sh
 
 ``sudo apt-get install wmctrl``
-
-* xprop and X11
-
-.. code:: sh
-
-``sudo apt-get install xorg openbox``
 
 -----------
 How to use:
