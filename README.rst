@@ -40,12 +40,12 @@ How to use:
 
    ``wmctrl -l -p``
 
-Then you can go through a list of window applications and their window titles. You can choose something unique to the application (firefox for example) and add it to the configuration file if you wish.
-If there is no unique part of the window title to the application, use:
+   Then you can go through a list of window applications and their window titles. You can choose something unique to the application (firefox for example) and add it to the configuration file if you wish.
+   If there is no unique part of the window title to the application, use:
 
    ``ps -aux | grep "insert a name here"``
 
-You need to use several names related to the application and find something that will help identify and add it to one of the configuration files if you wish.
+   You need to use several names related to the application and find something that will help identify and add it to one of the configuration files if you wish.
 
 4. Go back to power-up application folder. More specifically the folder **latest_version_power-up.** Compile (using ``make clean all``) and launch the executable generated of the latest version of the application.
    
