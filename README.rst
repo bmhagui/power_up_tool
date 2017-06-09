@@ -32,9 +32,16 @@ Requirements:
 How to use:
 -----------
 
-1. Add names of applications that you dont want to suspend or to refresh regurlay to their respective configuration files.
-2. Compile (using ``make clean all``) and launch the executable generated of the latest version of the application. 
-3. Launch the bash file xprop.sh in a separate terminal.
+1. Run the bash file **install.sh** in a terminal. **This step is only to do the first time you use the application.**
+2. Configuration files are now set up in **~/.config/powerup_config/** You can modify the file conf.txt to add names of processes that you do not want to ever suspend. And names_refresh.txt has a list of processes that you wish to refresh regularly.
+3. Finding the name of applications that you wish to add to one of those lists can be done through the following commands
+``wmctrl -l -p``
+Then you can go through a list of window applications and their window titles. You can choose something unique to the application (firefox for example) and add it to the configuration file if you wish.
+If there is no unique part of the window title to the application, use:
+``ps -aux | grep "insert a name here"``
+You need to use several names related to the application and find something that will help identify and add it to one of the configuration files if you wish.
+4. Go back to power-up application folder. More specifically the folder **latest_version_power-up.** Compile (using ``make clean all``) and launch the executable generated of the latest version of the application. 
+5. Launch the bash file xprop.sh in a separate terminal.
 
 -------------------
 Keyboard Shortcuts
