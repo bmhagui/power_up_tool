@@ -1,5 +1,5 @@
 #!/bin/bash
 
-cp powerup_config/ -r ~/.config/
+cp ../config_powerup/ -ruv ~/.config/
 
 exit 0

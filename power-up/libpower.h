@@ -17,7 +17,7 @@ struct sigaction action;
 pid_t pid, active_pid;
 int fd;
 int wd;
-FILE *fp,*fl,*flp;
+FILE *fp,*fl,*flp, *pipe_popen;
 
 void activate_all(void);
 

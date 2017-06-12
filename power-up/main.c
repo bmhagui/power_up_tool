@@ -2,7 +2,13 @@
 
 int main(int argc, char *argv[])
 {
-  system("> ~/.config/powerup_config/conf_pid.txt");
+  if (( pipe_popen = popen("xprop -root -spy _NET_ACTIVE_WINDOW | awk -W interactive '{print $5}' > ~/.config/config_powerup/notif/window_change.conf", "r")) == NULL)
+    {
+      perror("popen");
+      exit(1);
+    }
+  
+  system("> ~/.config/config_powerup/black_list_pid.conf");
   time_t first, second;
   first = time(NULL);
   
@@ -18,9 +24,10 @@ int main(int argc, char *argv[])
   };
   
   
-  system("bash ~/.config/powerup_config/get_pid.sh");
-  Liste *the_list = create_list("/.config/powerup_config/conf_pid.txt");
-  Liste *refresh_list = create_list("/.config/powerup_config/refresh_pid.txt");
+  //system("bash ~/.config/config_powerup/get_pid.sh");
+  system("bash ../bin/get_pid.sh");
+  Liste *black_list = create_list("/.config/config_powerup/black_list_pid.conf");
+  Liste *refresh_list = create_list("/.config/config_powerup/refresh_list_pid.conf");
 
   while ((opt = getopt_long(argc, argv,"hwbk", long_options, &long_index )) != -1) {
     switch (opt) {
@@ -50,15 +57,15 @@ int main(int argc, char *argv[])
   char src[100], src2[100], notify[100], open_windows[100];
   strcpy(notify, getenv("HOME"));
   strcpy(open_windows, getenv("HOME"));
-  strcpy(src, "/.config/powerup_config/notif/");
-  strcpy(src2, "/.config/powerup_config/open_windows.txt");
+  strcpy(src, "/.config/config_powerup/notif/");
+  strcpy(src2, "/.config/config_powerup/open_windows.conf");
   strcat(notify, src);
   strcat(open_windows, src2);
   
   wd = inotify_add_watch( fd, notify, IN_MODIFY); 
   fp = fopen(open_windows,"r");
   if(fp==NULL){
-    perror("cannot open file open_windows.txt");
+    perror("cannot open file open_windows.conf");
   }
   
   while(1){
@@ -73,11 +80,12 @@ int main(int argc, char *argv[])
 	if ( event->mask & IN_MODIFY ) {
 	  //printf( "%s has been modified, changing suspended windows.\n", event->name );
 
-	  system("xdotool getwindowfocus getwindowpid > ~/.config/powerup_config/open_windows.txt");
-	  system("wmctrl -l -p | cut -f4 -d' ' >> ~/.config/powerup_config/open_windows.txt");
-	  system("bash ~/.config/powerup_config/get_pid.sh");
-	  the_list = create_list("/.config/powerup_config/conf_pid.txt");
-	  refresh_list = create_list("/.config/powerup_config/refresh_pid.txt");
+	  system("xdotool getwindowfocus getwindowpid > ~/.config/config_powerup/open_windows.conf");
+	  system("wmctrl -l -p | cut -f4 -d' ' >> ~/.config/config_powerup/open_windows.conf");
+	  //system("bash ~/.config/config_powerup/get_pid.sh");
+	  system("bash ../bin/get_pid.sh");
+	  black_list = create_list("/.config/config_powerup/black_list_pid.conf");
+	  refresh_list = create_list("/.config/config_powerup/refresh_list_pid.conf");
 	  
 	  fscanf(fp, "%d", &active_pid);
 	  while( !feof(fp)) {
@@ -85,7 +93,7 @@ int main(int argc, char *argv[])
 	    if (pid == active_pid){
 	      kill(pid, SIGCONT);
 	    }
-	    else if ( !member(pid,the_list) ){ 
+	    else if ( !member(pid,black_list) ){ 
 	      kill(pid, SIGSTOP);
 	    }
 	  }

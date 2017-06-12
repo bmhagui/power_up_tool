@@ -16,6 +16,7 @@ void hand(int sig)
     inotify_rm_watch( fd, wd );
     close(fd);
     fclose(fp);
+    pclose(pipe_popen);
     exit(0);
   }
   else{
