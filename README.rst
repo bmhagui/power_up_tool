@@ -34,9 +34,11 @@ How to use:
 
 1. Extract the application to the home directory.
 
-2. Open a terminal, navigate to the bin folder of the application. Run the bash file **install.sh**. **(This step is only to do the first time you use the application.)**
+2. Open a terminal, navigate to the bin folder of the application. Run the bash file **bash install.sh**. **(This step is only to do the first time you use the application, if launched again it will empty your configuration files.)**
    
-3. Configuration files are now set up in **~/.config/config_powerup/** black_list.conf contains the names of applications you want to never suspend and refresh_list.conf the aplications you want to suspend but activate every REFRESH_RATE_S (in seconds) for a cycle of the application.
+3. Configuration files are now set up in **~/.config/config_powerup/**
+   black_list.conf contains the names of applications you want to never suspend and
+   refresh_list.conf the aplications you want to suspend but activate every REFRESH_RATE_S (in seconds) for a cycle of the application.
    
 4. Finding the name of applications that you wish to add to one of those lists can be done through the following commands:
    MORE DETAILS COMING HERE, FLAGS WILL BE USED INSTEAD
