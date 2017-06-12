@@ -99,8 +99,8 @@ Liste *create_list(char *file_path){
 }
 
 void print_usage(void) {
-    printf("-----Help-----\nHere is how to use the flags integrated in Power-up:\n\n");
-    printf("--add-white or -w to add the current window's PID to the application's white list.\n");
-    printf("--add-black or -b to add the current window's PID to the application's black list.\n\n");
+    printf("Usage: ./latest_version [OPTION]\nWith no arguments the application is launched normally.\n");
+    printf("\n--add-refresh or -r to add the next window you click on's PID to the application's refresh list.\n");
+    printf("--add-black or -b to add the next window you click on's PID to the application's black list.\n");
     printf("--kill or -k to brutally terminate the powerup tool running in the background.\n\n");
 }

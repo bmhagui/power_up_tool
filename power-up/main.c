@@ -2,6 +2,59 @@
 
 int main(int argc, char *argv[])
 {
+  system("> ~/.config/config_powerup/black_list_pid.conf");
+  system("> ~/.config/config_powerup/refresh_list_pid.conf");
+  int length, i = 0, opt= 0, long_index =0, answer=1;
+  char buffer[EVENT_BUF_LEN];
+  time_t first, second;
+  
+  static struct option long_options[] = {
+    {"help",        no_argument, 0,  'h' },
+    {"add-refresh", no_argument, 0,  'r' },
+    {"add-black",   no_argument, 0,  'b' },
+    {"kill",        no_argument, 0,  'k' },
+    {"list",        no_argument, 0,  'l' },
+    {    0,             0,       0,   0  }
+  };
+
+  while ((opt = getopt_long(argc, argv,"hrbkl", long_options, &long_index )) != -1) {
+    switch (opt) {
+    case 'h' :
+      print_usage();
+      exit (0);
+    case 'r' :
+      printf("Click on the window of an application to add it's PID to the REFRESH list.\n");
+      while (answer ==1 ){
+	system("xprop _NET_WM_PID | cut -f3 -d' ' >> ~/.config/config_powerup/refresh_list_pid.conf");
+	printf("Enter 1 to continue selecting applications or 0 to launch power-up.\n");
+	scanf("%d",&answer);
+	while(answer != 0 && answer != 1){
+	  printf("Please enter 1 to continue selecting applications or 0 to launch power-up.\n");
+	  scanf("%d",&answer);
+	}
+      }
+      break;
+    case 'b' :
+      printf("Click on the window of an application to add it's PID to the BLACK list\n");
+      while (answer ==1 ){
+	system("xprop _NET_WM_PID | cut -f3 -d' ' >> ~/.config/config_powerup/black_list_pid.conf");
+	printf("Enter 1 to continue selecting applications or 0 to launch power-up.\n");
+	scanf("%d",&answer);
+	while(answer != 0 && answer != 1){
+	  printf("Please enter 1 to continue selecting applications or 0 to launch power-up.\n");
+	  scanf("%d",&answer);
+	}
+      }
+      break;
+    case 'k' :
+      system("kill `ps -e | grep latest | cut -f1 -d' '`");
+      exit(0);
+    case 'l' :
+      printf("Below is a list of currently active applications and their respective PIDS.\n");
+      system("wmctrl -l -p");
+      exit(0);
+    }
+  }
   if (( pipe_popen = popen("xprop -root -spy _NET_ACTIVE_WINDOW | awk -W interactive '{print $5}' > ~/.config/config_powerup/notif/window_change.conf", "r")) == NULL)
     {
       perror("popen");
@@ -9,43 +62,12 @@ int main(int argc, char *argv[])
     }
   
   system("> ~/.config/config_powerup/black_list_pid.conf");
-  time_t first, second;
   first = time(NULL);
-  
-  int length, i = 0, opt= 0, long_index =0;
-  char buffer[EVENT_BUF_LEN];
-  
-  static struct option long_options[] = {
-    {"help",      no_argument, 0,  'h' },
-    {"add-white", no_argument, 0,  'w' },
-    {"add-black", no_argument, 0,  'b' },
-    {"kill",      no_argument, 0,  'k' },
-    {    0,           0,       0,   0  }
-  };
-  
-  
-  //system("bash ~/.config/config_powerup/get_pid.sh");
+  printf("\nLaunched power-up.\n");
   system("bash ../bin/get_pid.sh");
   Liste *black_list = create_list("/.config/config_powerup/black_list_pid.conf");
   Liste *refresh_list = create_list("/.config/config_powerup/refresh_list_pid.conf");
 
-  while ((opt = getopt_long(argc, argv,"hwbk", long_options, &long_index )) != -1) {
-    switch (opt) {
-    case 'h' :
-      print_usage();
-      exit (0);
-    case 'w' :
-      printf("Add to white list\n");
-      break;
-    case 'b' :
-      printf("Add to black list\n");
-      break;
-    case 'k' :
-      system("kill `ps -e | grep latest | cut -f1 -d' '`");
-      exit(0);
-    }
-  }
-  
   action.sa_handler = hand;
   sigaction(SIGINT,&action,NULL);
   

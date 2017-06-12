@@ -13,7 +13,7 @@ do
 
 done < ~/.config/config_powerup/black_list.conf
 
-> ~/.config/config_powerup/refresh_list_pid.conf
+#> ~/.config/config_powerup/refresh_list_pid.conf
 while read -r line
 do
 	name="$line"
