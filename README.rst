@@ -32,7 +32,7 @@ Requirements:
 How to use:
 -----------
 
-1. Extract the application to the home directory.
+1. Extract the application.
 
 2. Open a terminal, navigate to the bin folder of the application. Run the bash file **bash install.sh**. **(This step is only to do the first time you use the application, if launched again it will empty your configuration files.)**
    
@@ -42,17 +42,13 @@ How to use:
    
    refresh_list.conf the aplications you want to suspend but activate every REFRESH_RATE_S (in seconds) for a cycle of the application.
    
-4. Finding the name of applications that you wish to add to one of those lists can be done through the following commands:
-   MORE DETAILS COMING HERE, FLAGS WILL BE USED INSTEAD
+4. Finding the name or PID of applications that you wish to add to one of those lists can be done through the following commands:
 
-   ``wmctrl -l -p``
+   Start the application with the flag **--add-black or -b**, click on a window application to add it to the black list. Press 1 then enter to continue selecting window applications or 0 to launch.
 
-   Then you can go through a list of window applications and their window titles. You can choose something unique to the application (firefox for example) and add it to the configuration file if you wish.
-   If there is no unique part of the window title to the application, use:
+   Start the application with the flag **--add-refresh or -r**, click on a window application to add it to the refresh list. Press 1 then enter to continue selecting window applications or 0 to launch.
 
-   ``ps -aux | grep "insert a name here"``
-
-   You need to use several names related to the application and find something that will help identify and add it to one of the configuration files if you wish.
+   Start the application with the flag **--list or -l**, to display a list of opened window applications and their PIDs.  
 
 5. Navigate to **power-up** application folder. Compile (using ``make clean all``) and launch the executable generated of the latest version of the application.
 

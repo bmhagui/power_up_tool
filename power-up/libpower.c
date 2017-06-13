@@ -99,8 +99,10 @@ Liste *create_list(char *file_path){
 }
 
 void print_usage(void) {
-    printf("Usage: ./latest_version [OPTION]\nWith no arguments the application is launched normally.\n");
-    printf("\n--add-refresh or -r to add the next window you click on's PID to the application's refresh list.\n");
-    printf("--add-black or -b to add the next window you click on's PID to the application's black list.\n");
-    printf("--kill or -k to brutally terminate the powerup tool running in the background.\n\n");
+    printf("Usage: ./latest_version [OPTION]\nWith no arguments the application is launched normally.\n\n");
+    printf("[OPTION]:\n");
+    printf("--add-refresh or -r\n\tadd the next window you click on's PID to the application's refresh list.\n");
+    printf("--add-black or -b\n\tadd the next window you click on's PID to the application's black list.\n");
+    printf("--kill or -k\n\tbrutally terminate the powerup tool running in the background.\n");
+    printf("--list or -l\n\tdisplay a list of open window applications and their PIDs.\n");
 }

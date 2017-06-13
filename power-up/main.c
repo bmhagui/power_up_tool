@@ -61,10 +61,10 @@ int main(int argc, char *argv[])
       exit(1);
     }
   
-  system("> ~/.config/config_powerup/black_list_pid.conf");
+  //system("> ~/.config/config_powerup/black_list_pid.conf");
   first = time(NULL);
   printf("\nLaunched power-up.\n");
-  system("bash ../bin/get_pid.sh");
+  system("bash ~/.config/config_powerup/get_pid.sh");
   Liste *black_list = create_list("/.config/config_powerup/black_list_pid.conf");
   Liste *refresh_list = create_list("/.config/config_powerup/refresh_list_pid.conf");
 
@@ -105,7 +105,7 @@ int main(int argc, char *argv[])
 	  system("xdotool getwindowfocus getwindowpid > ~/.config/config_powerup/open_windows.conf");
 	  system("wmctrl -l -p | cut -f4 -d' ' >> ~/.config/config_powerup/open_windows.conf");
 	  //system("bash ~/.config/config_powerup/get_pid.sh");
-	  system("bash ../bin/get_pid.sh");
+	  system("bash ~/.config/config_powerup/get_pid.sh");
 	  black_list = create_list("/.config/config_powerup/black_list_pid.conf");
 	  refresh_list = create_list("/.config/config_powerup/refresh_list_pid.conf");
 	  
