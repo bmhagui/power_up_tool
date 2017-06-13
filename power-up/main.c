@@ -101,10 +101,8 @@ int main(int argc, char *argv[])
     while ( i < length ) {     struct inotify_event *event = ( struct inotify_event * ) &buffer[ i ];     if ( event->len ) {
 	if ( event->mask & IN_MODIFY ) {
 	  //printf( "%s has been modified, changing suspended windows.\n", event->name );
-
 	  system("xdotool getwindowfocus getwindowpid > ~/.config/config_powerup/open_windows.conf");
 	  system("wmctrl -l -p | cut -f4 -d' ' >> ~/.config/config_powerup/open_windows.conf");
-	  //system("bash ~/.config/config_powerup/get_pid.sh");
 	  system("bash ~/.config/config_powerup/get_pid.sh");
 	  black_list = create_list("/.config/config_powerup/black_list_pid.conf");
 	  refresh_list = create_list("/.config/config_powerup/refresh_list_pid.conf");
