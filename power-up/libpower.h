@@ -12,6 +12,7 @@
 #define EVENT_SIZE  ( sizeof (struct inotify_event) )
 #define EVENT_BUF_LEN     ( 1024 * ( EVENT_SIZE + 16 ) )
 #define REFRESH_RATE_S 5
+#define STOP_AFTER_S 3
 
 struct sigaction action;
 pid_t pid, active_pid;

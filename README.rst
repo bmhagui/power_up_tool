@@ -28,6 +28,12 @@ Requirements:
 
 ``sudo apt-get install wmctrl``
 
+* mawk
+
+.. code:: sh
+
+``sudo apt-get install mawk``
+
 -----------
 How to use:
 -----------

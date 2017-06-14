@@ -6,7 +6,7 @@ int main(int argc, char *argv[])
   system("> ~/.config/config_powerup/refresh_list_pid.conf");
   int length, i = 0, opt= 0, long_index =0, answer=1;
   char buffer[EVENT_BUF_LEN];
-  time_t first, second;
+  time_t first_refresh, second_refresh, first_stop, second_stop;
   
   static struct option long_options[] = {
     {"help",        no_argument, 0,  'h' },
@@ -55,14 +55,14 @@ int main(int argc, char *argv[])
       exit(0);
     }
   }
-  if (( pipe_popen = popen("xprop -root -spy _NET_ACTIVE_WINDOW | awk -W interactive '{print $5}' > ~/.config/config_powerup/notif/window_change.conf", "r")) == NULL)
+  if (( pipe_popen = popen("xprop -root -spy _NET_ACTIVE_WINDOW | mawk -W interactive '{print $5}' > ~/.config/config_powerup/notif/window_change.conf", "r")) == NULL)
     {
       perror("popen");
       exit(1);
     }
   
   //system("> ~/.config/config_powerup/black_list_pid.conf");
-  first = time(NULL);
+  first_refresh = time(NULL);
   printf("\nLaunched power-up.\n");
   system("bash ~/.config/config_powerup/get_pid.sh");
   Liste *black_list = create_list("/.config/config_powerup/black_list_pid.conf");
@@ -101,6 +101,7 @@ int main(int argc, char *argv[])
     while ( i < length ) {     struct inotify_event *event = ( struct inotify_event * ) &buffer[ i ];     if ( event->len ) {
 	if ( event->mask & IN_MODIFY ) {
 	  //printf( "%s has been modified, changing suspended windows.\n", event->name );
+	  first_stop = time(NULL);
 	  system("xdotool getwindowfocus getwindowpid > ~/.config/config_powerup/open_windows.conf");
 	  system("wmctrl -l -p | cut -f4 -d' ' >> ~/.config/config_powerup/open_windows.conf");
 	  system("bash ~/.config/config_powerup/get_pid.sh");
@@ -113,7 +114,11 @@ int main(int argc, char *argv[])
 	    if (pid == active_pid){
 	      kill(pid, SIGCONT);
 	    }
-	    else if ( !member(pid,black_list) ){ 
+	    else if ( !member(pid,black_list) ){
+	      second_stop=time(NULL);
+	      while (second_stop-first_stop < STOP_AFTER_S){
+		second_stop=time(NULL);
+	      }
 	      kill(pid, SIGSTOP);
 	    }
 	  }
@@ -122,11 +127,11 @@ int main(int argc, char *argv[])
       i += EVENT_SIZE + event->len;
     }
     rewind(fp);
-    second = time(NULL);
-    if (second-first >= REFRESH_RATE_S){
+    second_refresh = time(NULL);
+    if (second_refresh-first_refresh >= REFRESH_RATE_S){
       //printf("Waking up chosen processes\n");
       activate_list(refresh_list);
-      first = time(NULL);
+      first_refresh = time(NULL);
     }
   }
 }

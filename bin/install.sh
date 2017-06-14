@@ -2,7 +2,7 @@
 
 mkdir -v ~/.config/config_powerup
 
-cp get_pid.sh -uv ~/.config/config_powerup
+cp `sudo find ~ -name "get_pid.sh" -user $USER | grep bin/get_pid.sh` -uv ~/.config/config_powerup
 
 mkdir -v ~/.config/config_powerup/notif
 
