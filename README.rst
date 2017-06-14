@@ -52,11 +52,12 @@ How to use:
 
 5. Navigate to **power-up** application folder. Compile (using ``make clean all``) and launch the executable generated of the latest version of the application.
 
+---------------------------------------------------
+use the flag --help or -h for further instructions.
+---------------------------------------------------
+
 
 -----------
 -----------
 Example by the creator of XdoTool:
 https://stackoverflow.com/questions/1108926/produce-keyboard-events-key-hits/2978666#2978666
----------------------------------------------------
-use the flag --help or -h for further instructions.
----------------------------------------------------
