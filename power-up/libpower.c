@@ -106,3 +106,80 @@ void print_usage(void) {
     printf("--kill or -k\n\tbrutally terminate the powerup tool running in the background.\n");
     printf("--list or -l\n\tdisplay a list of open window applications and their PIDs.\n");
 }
+
+void check_config(void) {
+  wordexp_t expansion;
+  wordexp("~/.config/config_powerup/", &expansion, 0);
+  char *path_config_powerup = *(expansion.we_wordv);
+  
+  char path_black_list[100], path_black_list_pid[100],
+    path_refresh_list[100], path_refresh_list_pid[100],
+    path_open_windows[100], path_window_change[100], path_notif[100];
+  
+  FILE *check;
+  
+  strcpy(path_black_list, path_config_powerup);
+  strcat(path_black_list, "black_list.conf");
+  strcpy(path_black_list_pid, path_config_powerup);
+  strcat(path_black_list_pid, "black_list_pid.conf");
+  strcpy(path_refresh_list, path_config_powerup);
+  strcat(path_refresh_list, "refresh_list.conf");
+  strcpy(path_refresh_list_pid, path_config_powerup);
+  strcat(path_refresh_list_pid, "refresh_list_pid.conf");
+  strcpy(path_open_windows, path_config_powerup);
+  strcat(path_open_windows, "open_windows.conf");
+  strcpy(path_window_change, path_config_powerup);
+  strcat(path_window_change, "notif/window_change.conf");
+  strcpy(path_notif, path_config_powerup);
+  strcat(path_notif, "notif/");
+  
+  DIR* dir = opendir(path_config_powerup);
+  if (dir == NULL){
+    /* Error */
+    if (ENOENT == errno){
+      printf("Config folder does not exist, creating now.\n"); 
+      if (mkdir(path_config_powerup, 00700) < 0){
+	perror("mkdir error config_powerup");
+      }
+      if (mkdir(path_notif, 00700) < 0){
+	perror("mkdir error notif");
+      }
+    }
+    else{
+      wordfree(&expansion);
+      perror("opendir error:");
+    }
+  }
+  else{
+    printf("Config folder in place.\n");
+    closedir(dir);
+  }
+  
+  printf("Checking config files and creating them if needed.\n");
+  system("cp `sudo find ~ -name \"get_pid.sh\" -user $USER | grep bin/get_pid.sh` -uv ~/.config/config_powerup");
+  check = fopen(path_black_list,"a+");
+  if( check != NULL){
+    fclose(check);
+  }
+  check = fopen(path_black_list_pid,"a+");
+  if( check != NULL){
+    fclose(check);
+  }
+  check = fopen(path_refresh_list,"a+");
+  if( check != NULL){
+    fclose(check);
+  }
+  check = fopen(path_refresh_list_pid,"a+");
+  if( check != NULL){
+    fclose(check);
+  }
+  check = fopen(path_open_windows,"a+");
+  if( check != NULL){
+    fclose(check);
+  }
+  check = fopen(path_window_change,"a+");
+  if( check != NULL){
+    fclose(check);
+  }
+  wordfree(&expansion);
+}

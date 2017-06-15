@@ -8,17 +8,21 @@
 #include <string.h>
 #include <time.h>
 #include <getopt.h>
+#include <sys/stat.h>
+#include <dirent.h>
+#include <errno.h>
+#include <wordexp.h>
 
 #define EVENT_SIZE  ( sizeof (struct inotify_event) )
 #define EVENT_BUF_LEN     ( 1024 * ( EVENT_SIZE + 16 ) )
 #define REFRESH_RATE_S 5
-#define STOP_AFTER_S 3
+#define STOP_AFTER_S 1
 
 struct sigaction action;
 pid_t pid, active_pid;
-int fd;
-int wd;
+int fd, wd;
 FILE *fp,*fl,*flp, *pipe_popen;
+
 
 void activate_all(void);
 
@@ -46,3 +50,5 @@ bool member(pid_t cpid, Liste *liste);
 Liste *create_list(char *file_path);
 
 void print_usage(void);
+
+void check_config(void);
