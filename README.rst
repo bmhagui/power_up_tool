@@ -40,7 +40,7 @@ How to use:
 
 1. Extract the application.
 
-2. Open a terminal, navigate to the bin folder of the application. Run the bash file **bash install.sh**. **(This step is only to do the first time you use the application, if launched again it will empty your configuration files.)**
+2. Navigate to **power-up** application folder. Compile (using ``make clean all``) and launch the executable generated of the latest version of the application.
    
 3. Configuration files are now set up in **~/.config/config_powerup/**
    
@@ -56,8 +56,7 @@ How to use:
 
    Start the application with the flag **--list or -l**, to display a list of opened window applications and their PIDs.  
 
-5. Navigate to **power-up** application folder. Compile (using ``make clean all``) and launch the executable generated of the latest version of the application.
-
+   Start the application with the flag **--toggle or -t**, to add current window application to black_list(If the application is already in the black_list it will be removed).
 
 
 ---------------------------------------------------

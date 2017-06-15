@@ -40,41 +40,7 @@ int main(int argc, char *argv[])
       system("wmctrl -l -p");
       exit(0);
     case 't' :
-      /* Create one way pipe line with call to popen() */
-      if (( pipe_popen = popen("ps -e | grep `xdotool getactivewindow getwindowpid` | sed -e 's/[0-9]*//' | sed -e 's/\ .*\ //'", "r")) == NULL)
-	{
-	  perror("popen");
-	  exit(1);
-	}
-      fgets(app_name,100,pipe_popen);
-      pclose(pipe_popen);
-  
-      check = fopen("/home/bhagui/.config/config_powerup/black_list.conf","r");
-      if(check==NULL){
-	perror("cannot open file open_windows.conf");
-      }
-      Liste_toggle *maListe = init_toggle();
-      while(fscanf(check, "%s", read_name)>0){
-	//fgets add a newline
-	if(strncmp(app_name,read_name,strlen(read_name))!=0){
-	  insertion_toggle(maListe, read_name);
-	}
-	else{
-	  exists=1;
-	}
-      }
-      if (exists==0){
-	check = fopen("/home/bhagui/.config/config_powerup/black_list.conf","a");
-	fprintf(check,"%s",app_name);
-	fclose(check);
-      }
-      else {
-	check = fopen("/home/bhagui/.config/config_powerup/black_list.conf","w");
-	rewrite_file(maListe,check);
-      }
-      delete_toggle(maListe);
-      exit(0);
-      
+      toggle(exists);
     }
   }
   if (( pipe_popen = popen("xprop -root -spy _NET_ACTIVE_WINDOW | mawk -W interactive '{print $5}' > ~/.config/config_powerup/notif/window_change.conf", "r")) == NULL)

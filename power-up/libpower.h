@@ -80,3 +80,5 @@ void insertion_toggle(Liste_toggle *liste, char name[]);
 void delete_toggle(Liste_toggle *liste);
 
 void rewrite_file(Liste_toggle *liste, FILE *fp);
+
+void toggle(int exists);

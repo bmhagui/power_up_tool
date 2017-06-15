@@ -217,7 +217,49 @@ void rewrite_file(Liste_toggle *liste, FILE *fp){
   Element_toggle *actuel = liste->premier;
   while (actuel != NULL)
     {
-      fprintf(fp,"%s\n", actuel->name);
+      fprintf(fp,"\n%s", actuel->name);
       actuel = actuel->suivant;
     }
+}
+
+void toggle(int exists){
+  /* Create one way pipe line with call to popen() */
+      if (( pipe_popen = popen("ps -e | grep `xdotool getactivewindow getwindowpid` | sed -e 's/[0-9]*//' | sed -e 's/\ .*\ //'", "r")) == NULL)
+	{
+	  perror("popen");
+	  exit(1);
+	}
+      fgets(app_name,100,pipe_popen);
+      pclose(pipe_popen);
+  
+      check = fopen(path_black_list,"r");
+      if(check==NULL){
+	perror("cannot open file open_windows.conf");
+      }
+      Liste_toggle *maListe = init_toggle();
+      while(fscanf(check, "%s", read_name)>0){
+	//fgets add a newline
+	//printf("app_name: %d\nread_name: %d\n",strlen(app_name),strlen(read_name));
+	if(strncmp(app_name,read_name,strlen(read_name))!=0){
+	  insertion_toggle(maListe, read_name);
+	}
+	else{
+	  exists=1;
+	}
+      }
+      if (exists==0){
+	check = fopen(path_black_list,"a");
+	fprintf(check,"%s",app_name);
+	//printf("%s",app_name);
+	fclose(check);
+      }
+      else {
+	if (truncate(path_black_list, 0) == -1){
+	  perror("Could not truncate");
+	}
+	check = fopen(path_black_list,"a");
+	rewrite_file(maListe,check);
+      }
+      delete_toggle(maListe);
+      exit(0);
 }
