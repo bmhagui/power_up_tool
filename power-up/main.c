@@ -69,8 +69,8 @@ int main(int argc, char *argv[])
   first_refresh = time(NULL);
   printf("\nLaunched power-up.\n");
   system("bash ~/.config/config_powerup/get_pid.sh");
-  Liste *black_list = create_list("/.config/config_powerup/black_list_pid.conf");
-  Liste *refresh_list = create_list("/.config/config_powerup/refresh_list_pid.conf");
+  Liste *black_list = create_list(path_black_list_pid);
+  Liste *refresh_list = create_list(path_refresh_list_pid);
 
   action.sa_handler = hand;
   sigaction(SIGINT,&action,NULL);
@@ -79,17 +79,9 @@ int main(int argc, char *argv[])
   if ( fd < 0 ) {
     perror( "inotify_init" );
   }
-
-  char src[100], src2[100], notify[100], open_windows[100];
-  strcpy(notify, getenv("HOME"));
-  strcpy(open_windows, getenv("HOME"));
-  strcpy(src, "/.config/config_powerup/notif/");
-  strcpy(src2, "/.config/config_powerup/open_windows.conf");
-  strcat(notify, src);
-  strcat(open_windows, src2);
   
-  wd = inotify_add_watch( fd, notify, IN_MODIFY); 
-  fp = fopen(open_windows,"r");
+  wd = inotify_add_watch( fd, path_notif, IN_MODIFY); 
+  fp = fopen(path_open_windows,"r");
   if(fp==NULL){
     perror("cannot open file open_windows.conf");
   }
@@ -109,8 +101,8 @@ int main(int argc, char *argv[])
 	  system("xdotool getwindowfocus getwindowpid > ~/.config/config_powerup/open_windows.conf");
 	  system("wmctrl -l -p | cut -f4 -d' ' >> ~/.config/config_powerup/open_windows.conf");
 	  system("bash ~/.config/config_powerup/get_pid.sh");
-	  black_list = create_list("/.config/config_powerup/black_list_pid.conf");
-	  refresh_list = create_list("/.config/config_powerup/refresh_list_pid.conf");
+	  black_list = create_list(path_black_list_pid);
+	  refresh_list = create_list(path_refresh_list_pid);
 	  
 	  fscanf(fp, "%d", &active_pid);
 	  while( !feof(fp)) {

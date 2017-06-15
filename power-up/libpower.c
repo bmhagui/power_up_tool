@@ -80,15 +80,10 @@ bool member(pid_t cpid, Liste *liste){
 Liste *create_list(char *file_path){
   
   Liste *mylist = initialisation();
-
-  char src[100], dest[100];
-  strcpy(dest, getenv("HOME"));
-  strcpy(src, file_path);
-  strcat(dest, src);
   
-  fl = fopen(dest,"r");
+  fl = fopen(file_path,"r");
   if(fl==NULL){
-    perror("cannot open file conf_pid.txt");
+    perror("create_list error");
   }
 
   while( !feof(fl)) {
@@ -108,15 +103,9 @@ void print_usage(void) {
 }
 
 void check_config(void) {
-  wordexp_t expansion;
+  
   wordexp("~/.config/config_powerup/", &expansion, 0);
-  char *path_config_powerup = *(expansion.we_wordv);
-  
-  char path_black_list[100], path_black_list_pid[100],
-    path_refresh_list[100], path_refresh_list_pid[100],
-    path_open_windows[100], path_window_change[100], path_notif[100];
-  
-  FILE *check;
+  strcpy(path_config_powerup, *(expansion.we_wordv));
   
   strcpy(path_black_list, path_config_powerup);
   strcat(path_black_list, "black_list.conf");
@@ -133,7 +122,7 @@ void check_config(void) {
   strcpy(path_notif, path_config_powerup);
   strcat(path_notif, "notif/");
   
-  DIR* dir = opendir(path_config_powerup);
+  dir = opendir(path_config_powerup);
   if (dir == NULL){
     /* Error */
     if (ENOENT == errno){

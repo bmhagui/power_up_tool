@@ -18,11 +18,16 @@
 #define REFRESH_RATE_S 5
 #define STOP_AFTER_S 1
 
+char path_black_list[100], path_black_list_pid[100],
+  path_refresh_list[100], path_refresh_list_pid[100], path_config_powerup[100],
+  path_open_windows[100], path_window_change[100], path_notif[100];
+
 struct sigaction action;
 pid_t pid, active_pid;
 int fd, wd;
-FILE *fp,*fl,*flp, *pipe_popen;
-
+FILE *fp,*fl,*flp, *pipe_popen, *check;
+DIR* dir;
+wordexp_t expansion;
 
 void activate_all(void);
 
