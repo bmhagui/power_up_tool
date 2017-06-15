@@ -18,9 +18,24 @@
 #define REFRESH_RATE_S 5
 #define STOP_AFTER_S 1
 
+typedef struct Element_toggle Element_toggle;
+struct Element_toggle
+{
+    char name[100];
+    Element_toggle *suivant;
+};
+
+typedef struct Liste_toggle Liste_toggle;
+struct Liste_toggle
+{
+    Element_toggle *premier;
+};
+
 char path_black_list[100], path_black_list_pid[100],
   path_refresh_list[100], path_refresh_list_pid[100], path_config_powerup[100],
-  path_open_windows[100], path_window_change[100], path_notif[100];
+  path_open_windows[100], path_window_change[100], path_notif[100],
+  app_name[100], read_name[100];
+
 
 struct sigaction action;
 pid_t pid, active_pid;
@@ -57,3 +72,11 @@ Liste *create_list(char *file_path);
 void print_usage(void);
 
 void check_config(void);
+
+Liste_toggle *init_toggle(void);
+
+void insertion_toggle(Liste_toggle *liste, char name[]);
+
+void delete_toggle(Liste_toggle *liste);
+
+void rewrite_file(Liste_toggle *liste, FILE *fp);

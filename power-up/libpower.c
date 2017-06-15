@@ -172,3 +172,52 @@ void check_config(void) {
   }
   wordfree(&expansion);
 }
+
+Liste_toggle *init_toggle(void){
+    Liste_toggle *liste = malloc(sizeof(*liste));
+    Element_toggle *element = malloc(sizeof(*element));
+    if (liste == NULL || element == NULL)
+    {
+        exit(EXIT_FAILURE);
+    }
+    strcpy(element->name, "");
+    element->suivant = NULL;
+    liste->premier = element;
+    return liste;
+}
+
+void insertion_toggle(Liste_toggle *liste, char name[]){
+    /* Création du nouvel élément */
+    Element_toggle *nouveau = malloc(sizeof(*nouveau));
+    if (liste == NULL || nouveau == NULL)    {
+        exit(EXIT_FAILURE);
+    }
+    strcpy(nouveau->name, name);
+    /* Insertion de l'élément au début de la liste */
+    nouveau->suivant = liste->premier;
+    liste->premier = nouveau;
+}
+
+void delete_toggle(Liste_toggle *liste){
+    if (liste == NULL){
+        exit(EXIT_FAILURE);
+    }
+    while (liste->premier != NULL){
+        Element_toggle *aSupprimer = liste->premier;
+        liste->premier = liste->premier->suivant;
+        free(aSupprimer);
+    }
+}
+
+void rewrite_file(Liste_toggle *liste, FILE *fp){
+  if (liste == NULL)
+    {
+      exit(EXIT_FAILURE);
+    }
+  Element_toggle *actuel = liste->premier;
+  while (actuel != NULL)
+    {
+      fprintf(fp,"%s\n", actuel->name);
+      actuel = actuel->suivant;
+    }
+}
