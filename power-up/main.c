@@ -3,8 +3,6 @@
 int main(int argc, char *argv[])
 {
   check_config();
-  fclose(fopen(path_black_list_pid,"w"));
-  fclose(fopen(path_refresh_list_pid,"w"));
   
   int length, i = 0, opt= 0, long_index =0, exists =0;
   char buffer[EVENT_BUF_LEN];
