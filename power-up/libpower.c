@@ -217,7 +217,9 @@ void rewrite_file(Liste_toggle *liste, FILE *fp){
   Element_toggle *actuel = liste->premier;
   while (actuel != NULL)
     {
-      fprintf(fp,"\n%s", actuel->name);
+      if (strlen(actuel->name)!=0){
+	fprintf(fp,"%s\n", actuel->name);
+      }
       actuel = actuel->suivant;
     }
 }
