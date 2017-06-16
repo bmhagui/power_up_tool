@@ -3,14 +3,13 @@
 int main(int argc, char *argv[])
 {
   check_config();
-  system("> ~/.config/config_powerup/black_list_pid.conf");
-  system("> ~/.config/config_powerup/refresh_list_pid.conf");
+  fclose(fopen(path_black_list_pid,"w"));
+  fclose(fopen(path_refresh_list_pid,"w"));
+  
   int length, i = 0, opt= 0, long_index =0, exists =0;
   char buffer[EVENT_BUF_LEN];
   time_t first_refresh, second_refresh, first_stop, second_stop;
-  // bool duplicate =false;
-  //  FILE *black_list_conf;
-  //   char string[100];
+
   static struct option long_options[] = {
     {"help",        no_argument, 0,  'h' },
     {"add-refresh", no_argument, 0,  'r' },
@@ -27,11 +26,11 @@ int main(int argc, char *argv[])
       print_usage();
       exit (0);
     case 'r' :
-	system("xprop _NET_WM_PID | cut -f3 -d' ' >> ~/.config/config_powerup/refresh_list_pid.conf");
-	exit(0);
+      system("ps -e | grep `xprop _NET_WM_PID | cut -f3 -d' '` | sed -e 's/[0-9]*//' | sed -e 's/\ .*\ //' >> ~/.config/config_powerup/refresh_list.conf");
+      exit(0);
     case 'b' :
-	system("xprop _NET_WM_PID | cut -f3 -d' ' >> ~/.config/config_powerup/black_list_pid.conf");
-	exit(0);
+      system("ps -e | grep `xprop _NET_WM_PID | cut -f3 -d' '` | sed -e 's/[0-9]*//' | sed -e 's/\ .*\ //' >> ~/.config/config_powerup/black_list.conf");
+      exit(0);
     case 'k' :
       system("kill `ps -e | grep latest | cut -f1 -d' '`");
       exit(0);

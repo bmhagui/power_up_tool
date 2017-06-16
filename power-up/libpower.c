@@ -106,7 +106,7 @@ void check_config(void) {
   
   wordexp("~/.config/config_powerup/", &expansion, 0);
   strcpy(path_config_powerup, *(expansion.we_wordv));
-  
+  wordfree(&expansion);
   strcpy(path_black_list, path_config_powerup);
   strcat(path_black_list, "black_list.conf");
   strcpy(path_black_list_pid, path_config_powerup);
@@ -135,7 +135,7 @@ void check_config(void) {
       }
     }
     else{
-      wordfree(&expansion);
+      
       perror("opendir error:");
     }
   }
