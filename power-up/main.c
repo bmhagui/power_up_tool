@@ -24,10 +24,10 @@ int main(int argc, char *argv[])
       print_usage();
       exit (0);
     case 'r' :
-      system("ps -e | grep `xprop _NET_WM_PID | cut -f3 -d' '` | sed -e 's/[0-9]*//' | sed -e 's/\\ .*\\ //' >> ~/.config/config_powerup/refresh_list.conf");
+      system("ps -e | grep `xprop _NET_WM_PID | cut -f3 -d' '` | sed -e 's/[0-9]*//' | sed -e 's/\\ .*\\ //' >> ~/.config/power-up/refresh_list.conf");
       exit(0);
     case 'b' :
-      system("ps -e | grep `xprop _NET_WM_PID | cut -f3 -d' '` | sed -e 's/[0-9]*//' | sed -e 's/\\ .*\\ //' >> ~/.config/config_powerup/black_list.conf");
+      system("ps -e | grep `xprop _NET_WM_PID | cut -f3 -d' '` | sed -e 's/[0-9]*//' | sed -e 's/\\ .*\\ //' >> ~/.config/power-up/black_list.conf");
       exit(0);
     case 'k' :
       system("kill `ps -e | grep latest | cut -f1 -d' '`");
@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
       toggle(exists);
     }
   }
-  if (( pipe_popen = popen("xprop -root -spy _NET_ACTIVE_WINDOW | mawk -W interactive '{print $5}' > ~/.config/config_powerup/notif/window_change.conf", "r")) == NULL)
+  if (( pipe_popen = popen("xprop -root -spy _NET_ACTIVE_WINDOW | mawk -W interactive '{print $5}' > ~/.config/power-up/notif/window_change.conf", "r")) == NULL)
     {
       perror("popen");
       exit(1);
@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
   
   first_refresh = time(NULL);
   printf("\nLaunched power-up.\n");
-  system("bash ~/.config/config_powerup/get_pid.sh");
+  system("bash ~/.config/power-up/get_pid.sh");
   Liste *black_list = create_list(path_black_list_pid);
   Liste *refresh_list = create_list(path_refresh_list_pid);
 
@@ -78,9 +78,9 @@ int main(int argc, char *argv[])
 	if ( event->mask & IN_MODIFY ) {
 	  //printf( "%s has been modified, changing suspended windows.\n", event->name );
 	  first_stop = time(NULL);
-	  system("xdotool getwindowfocus getwindowpid > ~/.config/config_powerup/open_windows.conf");
-	  system("wmctrl -l -p | cut -f4 -d' ' >> ~/.config/config_powerup/open_windows.conf");
-	  system("bash ~/.config/config_powerup/get_pid.sh");
+	  system("xdotool getwindowfocus getwindowpid > ~/.config/power-up/open_windows.conf");
+	  system("wmctrl -l -p | cut -f4 -d' ' >> ~/.config/power-up/open_windows.conf");
+	  system("bash ~/.config/power-up/get_pid.sh");
 	  black_list = create_list(path_black_list_pid);
 	  refresh_list = create_list(path_refresh_list_pid);
 	  

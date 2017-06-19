@@ -104,7 +104,7 @@ void print_usage(void) {
 
 void check_config(void) {
   
-  wordexp("~/.config/config_powerup/", &expansion, 0);
+  wordexp("~/.config/power-up/", &expansion, 0);
   strcpy(path_config_powerup, *(expansion.we_wordv));
   wordfree(&expansion);
   strcpy(path_black_list, path_config_powerup);
@@ -145,7 +145,7 @@ void check_config(void) {
   }
   
   printf("Checking config files and creating them if needed.\n");
-  system("cp `sudo find ~ -name \"get_pid.sh\" -user $USER | grep bin/get_pid.sh` -uv ~/.config/config_powerup");
+  system("cp `sudo find ~ -name \"get_pid.sh\" -user $USER | grep bin/get_pid.sh` -uv ~/.config/power-up");
   check = fopen(path_black_list,"a+");
   if( check != NULL){
     fclose(check);
