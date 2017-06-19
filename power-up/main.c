@@ -24,10 +24,10 @@ int main(int argc, char *argv[])
       print_usage();
       exit (0);
     case 'r' :
-      system("ps -e | grep `xprop _NET_WM_PID | cut -f3 -d' '` | sed -e 's/[0-9]*//' | sed -e 's/\ .*\ //' >> ~/.config/config_powerup/refresh_list.conf");
+      system("ps -e | grep `xprop _NET_WM_PID | cut -f3 -d' '` | sed -e 's/[0-9]*//' | sed -e 's/\\ .*\\ //' >> ~/.config/config_powerup/refresh_list.conf");
       exit(0);
     case 'b' :
-      system("ps -e | grep `xprop _NET_WM_PID | cut -f3 -d' '` | sed -e 's/[0-9]*//' | sed -e 's/\ .*\ //' >> ~/.config/config_powerup/black_list.conf");
+      system("ps -e | grep `xprop _NET_WM_PID | cut -f3 -d' '` | sed -e 's/[0-9]*//' | sed -e 's/\\ .*\\ //' >> ~/.config/config_powerup/black_list.conf");
       exit(0);
     case 'k' :
       system("kill `ps -e | grep latest | cut -f1 -d' '`");

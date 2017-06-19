@@ -226,7 +226,7 @@ void rewrite_file(Liste_toggle *liste, FILE *fp){
 
 void toggle(int exists){
   /* Create one way pipe line with call to popen() */
-      if (( pipe_popen = popen("ps -e | grep `xdotool getactivewindow getwindowpid` | sed -e 's/[0-9]*//' | sed -e 's/\ .*\ //'", "r")) == NULL)
+      if (( pipe_popen = popen("ps -e | grep `xdotool getactivewindow getwindowpid` | sed -e 's/[0-9]*//' | sed -e 's/\\ .*\\ //'", "r")) == NULL)
 	{
 	  perror("popen");
 	  exit(1);
