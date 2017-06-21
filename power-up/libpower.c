@@ -16,11 +16,11 @@ void hand(int sig)
     inotify_rm_watch( fd, wd );
     close(fd);
     fclose(fp);
-    pclose(pipe_popen);
+    //pclose(pipe_popen);
     exit(0);
   }
-  else{
-    printf("Erreur de gestion de signal SIGINT\n");
+  else {
+    printf("Erreur de gestion de signal SIGINT ou SIGTERM\n");
     exit(-1);
   }
 }
