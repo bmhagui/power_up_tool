@@ -2,23 +2,24 @@
 
 int main(int argc, char *argv[])
 {
-  check_config();
+  create_paths();
   
   int length, i = 0, opt= 0, long_index =0, exists =0;
   char buffer[EVENT_BUF_LEN];
   time_t first_refresh, second_refresh, first_stop, second_stop;
 
   static struct option long_options[] = {
-    {"help",        no_argument, 0,  'h' },
-    {"add-refresh", no_argument, 0,  'r' },
-    {"add-black",   no_argument, 0,  'b' },
-    {"kill",        no_argument, 0,  'k' },
-    {"list",        no_argument, 0,  'l' },
-    {"toggle-black",no_argument, 0,  't' },
-    {    0,             0,       0,   0  }
+    {"help",             no_argument, 0,  'h' },
+    {"refresh-list",     no_argument, 0,  'r' },
+    {"black-list",       no_argument, 0,  'b' },
+    {"kill",             no_argument, 0,  'k' },
+    {"list-apps",        no_argument, 0,  'l' },
+    {"toggle-black-list",no_argument, 0,  't' },
+    {"install",          no_argument, 0,  'i' },
+    {    0,                  0,       0,   0  }
   };
 
-  while ((opt = getopt_long(argc, argv,"hrbklt", long_options, &long_index )) != -1) {
+  while ((opt = getopt_long(argc, argv,"hrbklti", long_options, &long_index )) != -1) {
     switch (opt) {
     case 'h' :
       print_usage();
@@ -30,7 +31,7 @@ int main(int argc, char *argv[])
       system("ps -e | grep `xprop _NET_WM_PID | cut -f3 -d' '` | sed -e 's/[0-9]*//' | sed -e 's/\\ .*\\ //' >> ~/.config/power-up/black_list.conf");
       exit(0);
     case 'k' :
-      system("kill -15 `ps -e | grep latest | cut -f1 -d' '`");
+      system("kill `pgrep latest`");
       exit(0);
     case 'l' :
       printf("Below is a list of currently active applications and their respective PIDS.\n");
@@ -38,6 +39,9 @@ int main(int argc, char *argv[])
       exit(0);
     case 't' :
       toggle(exists);
+    case 'i' :
+      install();
+      exit(0);
     }
   }
   if (( pipe_popen = popen("xprop -root -spy _NET_ACTIVE_WINDOW | mawk -W interactive '{print $5}' > ~/.config/power-up/notif/window_change.conf", "r")) == NULL)

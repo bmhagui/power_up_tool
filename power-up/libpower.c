@@ -102,8 +102,7 @@ void print_usage(void) {
     printf("--list or -l\n\tdisplay a list of open window applications and their PIDs.\n");
 }
 
-void check_config(void) {
-  
+void create_paths(void){
   wordexp("~/.config/power-up/", &expansion, 0);
   strcpy(path_config_powerup, *(expansion.we_wordv));
   wordfree(&expansion);
@@ -121,6 +120,27 @@ void check_config(void) {
   strcat(path_window_change, "notif/window_change.conf");
   strcpy(path_notif, path_config_powerup);
   strcat(path_notif, "notif/");
+}
+
+void install(void) {
+  
+  /* wordexp("~/.config/power-up/", &expansion, 0);
+  strcpy(path_config_powerup, *(expansion.we_wordv));
+  wordfree(&expansion);
+  strcpy(path_black_list, path_config_powerup);
+  strcat(path_black_list, "black_list.conf");
+  strcpy(path_black_list_pid, path_config_powerup);
+  strcat(path_black_list_pid, "black_list_pid.conf");
+  strcpy(path_refresh_list, path_config_powerup);
+  strcat(path_refresh_list, "refresh_list.conf");
+  strcpy(path_refresh_list_pid, path_config_powerup);
+  strcat(path_refresh_list_pid, "refresh_list_pid.conf");
+  strcpy(path_open_windows, path_config_powerup);
+  strcat(path_open_windows, "open_windows.conf");
+  strcpy(path_window_change, path_config_powerup);
+  strcat(path_window_change, "notif/window_change.conf");
+  strcpy(path_notif, path_config_powerup);
+  strcat(path_notif, "notif/");*/
   
   dir = opendir(path_config_powerup);
   if (dir == NULL){
@@ -171,6 +191,8 @@ void check_config(void) {
     fclose(check);
   }
   //wordfree(&expansion);
+  system("sudo cp `sudo find ~ -name \"power-up\" -user $USER | grep bin/power-up` -uv /etc/bash_completion.d/");
+  //system(". /etc/bash_completion.d/power-up");
   printf("--Done--\n\n");
 }
 

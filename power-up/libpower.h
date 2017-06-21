@@ -71,7 +71,9 @@ Liste *create_list(char *file_path);
 
 void print_usage(void);
 
-void check_config(void);
+void create_paths(void);
+
+void install(void);
 
 Liste_toggle *init_toggle(void);
 

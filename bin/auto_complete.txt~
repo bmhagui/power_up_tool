@@ -1,0 +1,6 @@
+_latest_version()
+{
+    local cur=${COMP_WORDS[COMP_CWORD]}
+    COMPREPLY=( $(compgen -W "--add-black --add-refresh --list --kill --toggle-black" -- $cur) )
+}
+complete -F _latest_version latest_version
