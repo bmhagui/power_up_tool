@@ -10,7 +10,7 @@ void activate_all(void){
 
 void hand(int sig)
 {
-  if (sig == SIGINT){
+  if (sig == SIGINT || sig == SIGTERM){
     printf("\nYou have pressed Ctrl+C.\nActivating all processes, cleaning up and exiting.\n");
     activate_all();
     inotify_rm_watch( fd, wd );
@@ -170,7 +170,8 @@ void check_config(void) {
   if( check != NULL){
     fclose(check);
   }
-  wordfree(&expansion);
+  //wordfree(&expansion);
+  printf("--Done--\n\n");
 }
 
 Liste_toggle *init_toggle(void){

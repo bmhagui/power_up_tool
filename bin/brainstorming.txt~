@@ -1,0 +1,7 @@
+stat /proc/`xdotool getactivewindow getwindowpid`/exe | grep File | cut -f6 -d' ' | sed -e 's/\/.*\///'
+
+ps -e | grep 4196
+
+
+ps -e | grep `xdotool getactivewindow getwindowpid` | sed -e 's/[0-9]*//' | sed -e 's/\ .*\ //'
+

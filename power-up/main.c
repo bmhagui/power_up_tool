@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
       system("ps -e | grep `xprop _NET_WM_PID | cut -f3 -d' '` | sed -e 's/[0-9]*//' | sed -e 's/\\ .*\\ //' >> ~/.config/power-up/black_list.conf");
       exit(0);
     case 'k' :
-      system("kill `ps -e | grep latest | cut -f1 -d' '`");
+      system("kill -15 `ps -e | grep latest | cut -f1 -d' '`");
       exit(0);
     case 'l' :
       printf("Below is a list of currently active applications and their respective PIDS.\n");
@@ -54,6 +54,7 @@ int main(int argc, char *argv[])
 
   action.sa_handler = hand;
   sigaction(SIGINT,&action,NULL);
+  sigaction(SIGTERM,&action,NULL);
   
   fd = inotify_init();
   if ( fd < 0 ) {
