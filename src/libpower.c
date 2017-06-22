@@ -96,11 +96,12 @@ Liste *create_list(char *file_path){
 void print_usage(void) {
     printf("Usage: ./latest_version [OPTION]\nWith no arguments the application is launched normally.\n\n");
     printf("[OPTION]:\n");
-    printf("--refresh-list or -r\n\tadd the next window you click on's PID to the application's refresh list.\n");
-    printf("--black-list or -b\n\tadd the next window you click on's PID to the application's black list.\n");
-    printf("--kill or -k\n\tbrutally terminate the powerup tool running in the background.\n");
-    printf("--list-apps or -l\n\tdisplay a list of open window applications and their PIDs.\n");
-    printf("--toggle-active-window -t\n\tAdd the currently open application to the blacklist or remove it if it is already on there.\n");
+    printf("--refresh-list or --r\n\tadd the next window you click on's PID to the application's refresh list.\n");
+    printf("--black-list or --b\n\tadd the next window you click on's PID to the application's black list.\n");
+    printf("--kill-power-up or --k\n\tbrutally terminate the powerup tool running in the background.\n");
+    printf("--list-apps or --l\n\tdisplay a list of open window applications and their PIDs.\n");
+    printf("--toggle-active-window or --t\n\tAdd the currently open application to the blacklist or remove it if it is already on there.\n");
+    printf("--wait-for <seconds> or --w\n\tWaits the entered number of seconds before launching the app, or if the app is alraedy running, this will stop the app and re-run it in the second terminal after <seconds>.\n");
 }
 
 void check_paths(void) {

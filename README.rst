@@ -58,7 +58,20 @@ How to use:
 
    Start the application with the flag **--toggle or -t**, to add current window application to black_list(If the application is already in the black_list it will be removed).
 
+------------------
+Auto-completition:
+------------------
 
+For auto-completiton you will need to do the following:
+
+1. Use the Makefile with the option install ``make install``.
+   This will copy a file called **power-up** to the directory **/etc/bash_completion.d/**.
+
+2. Source the file mentionned previously with the following command:
+   ``. /etc/bash_completion.d/power_up``
+
+3. You can now type use [TAB][TAB] to autocomplete you the flags you would like to use with power-up
+   
 ---------------------------------------------------
 use the flag --help or -h for further instructions.
 ---------------------------------------------------

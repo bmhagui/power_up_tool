@@ -1,6 +1,0 @@
-_latest_version()
-{
-    local cur=${COMP_WORDS[COMP_CWORD]}
-    COMPREPLY=( $(compgen -W "--black-list --refresh-list --list-apps --kill --toggle-black-list --help --install" -- $cur) )
-}
-complete -F _latest_version latest_version
