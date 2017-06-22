@@ -1,21 +1,20 @@
 #include "libpower.h"
 
 int main(int argc, char *argv[])
-{
-  check_paths();
-  
+{  
   int length, i = 0, opt= 0, long_index =0, exists =0;
   char buffer[EVENT_BUF_LEN];
   time_t first_refresh, second_refresh, first_stop, second_stop;
 
   static struct option long_options[] = {
-    {"help",             no_argument, 0,  'h' },
-    {"refresh-list",     no_argument, 0,  'r' },
-    {"black-list",       no_argument, 0,  'b' },
-    {"kill",             no_argument, 0,  'k' },
-    {"list-apps",        no_argument, 0,  'l' },
+    {"help",                no_argument, 0,  'h' },
+    {"refresh-list",        no_argument, 0,  'r' },
+    {"black-list",          no_argument, 0,  'b' },
+    {"kill-power-up",       no_argument, 0,  'k' },
+    {"list-apps",           no_argument, 0,  'l' },
     {"toggle-active-window",no_argument, 0,  't' },
-    {    0,                  0,       0,   0  }
+    {"wait-for",      required_argument, 0,  'w' },
+    {    0,                     0,       0,   0  }
   };
 
   while ((opt = getopt_long(argc, argv,"hrbklt", long_options, &long_index )) != -1) {
@@ -30,7 +29,7 @@ int main(int argc, char *argv[])
       system("ps -e | grep `xprop _NET_WM_PID | cut -f3 -d' '` | sed -e 's/[0-9]*//' | sed -e 's/\\ .*\\ //' >> ~/.config/power-up/black_list.conf");
       exit(0);
     case 'k' :
-      system("kill `pgrep latest`");
+      system("kill `pgrep power-up`");
       exit(0);
     case 'l' :
       printf("Below is a list of currently active applications and their respective PIDS.\n\nPID\tName\n");
@@ -39,8 +38,17 @@ int main(int argc, char *argv[])
       exit(0);
     case 't' :
       toggle(exists);
+    case 'w' :
+      i = strtol(optarg, NULL, 10);
+      system("pkill -SIGINT power-up");
+      sleep(i);
+      break;
     }
   }
+
+  running_check();
+  check_paths();
+  
   if (( pipe_popen = popen("xprop -root -spy _NET_ACTIVE_WINDOW | mawk -W interactive '{print $5}' > ~/.config/power-up/notif/window_change.conf", "r")) == NULL)
     {
       perror("popen");

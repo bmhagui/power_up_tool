@@ -81,3 +81,5 @@ void delete_toggle(Liste_toggle *liste);
 void rewrite_file(Liste_toggle *liste, FILE *fp);
 
 void toggle(int exists);
+
+void running_check(void);
