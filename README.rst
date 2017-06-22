@@ -1,5 +1,5 @@
 =========
-Power-Up
+Power_Up
 =========
 
 Power-up is a tool that will help you extend your battery life and make better use of your processing power. This is achieved by suspending your inactive window applications (SIGSTOP signal is sent to all processes in the background, and a SIGCONT to the one in the foreground).
@@ -65,13 +65,13 @@ Auto-completition:
 For auto-completiton you will need to do the following:
 
 1. Use the Makefile with the option install ``make install``.
-   This will copy a file called **power-up** to the directory **/etc/bash_completion.d/**.
+   This will copy a file called **power_up** to the directory **/etc/bash_completion.d/**.
 
 2. Source the file mentionned previously with the following command:
    ``. /etc/bash_completion.d/power_up``
 
-3. You can now type use [TAB][TAB] to autocomplete you the flags you would like to use with power-up
+3. You can now type use [TAB][TAB] to autocomplete the flags you would like to use with power-up
    
 ---------------------------------------------------
-use the flag --help or -h for further instructions.
+use the flag --help or --h for further instructions.
 ---------------------------------------------------

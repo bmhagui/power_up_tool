@@ -14,6 +14,7 @@ int main(int argc, char *argv[])
     {"list-apps",           no_argument, 0,  'l' },
     {"toggle-active-window",no_argument, 0,  't' },
     {"wait-for",      required_argument, 0,  'w' },
+    {"configure-pause-and-refresh-rates",      no_argument, 0,  'c' },
     {    0,                     0,       0,   0  }
   };
 
@@ -43,6 +44,30 @@ int main(int argc, char *argv[])
       system("pkill -SIGINT power-up");
       sleep(i);
       break;
+    case 'c' :
+      if (( fp = fopen("/home/bhagui/power_up_tool/src/libpower.h", "r+")) == NULL){
+	perror("popen");
+	exit(1);
+      }
+      
+      fscanf(fp,"%s",read_name);
+      rewind(fp);
+      printf("After how many seconds would you like to pause your applications?\n");
+      scanf("%d",&i);
+      while(i>9 || i<0){
+	printf("Answer MUST be between 1 and 10 seconds.\n");
+	scanf("%d",&i);
+      }
+      
+      fprintf(fp,"#define STOP_AFTER_S %d\n",i);
+      printf("At what frequencey would you like to refresh your refresh-list applications?\n");
+      scanf("%d",&i);
+      while(i>9 || i<0){
+	printf("Answer MUST be between 1 and 10 seconds.\n");
+	scanf("%d",&i);
+      }
+      fprintf(fp,"#define REFRESH_RATE_S %d\n",i);
+      exit(0);
     }
   }
 

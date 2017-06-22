@@ -102,6 +102,7 @@ void print_usage(void) {
     printf("--list-apps or --l\n\tdisplay a list of open window applications and their PIDs.\n");
     printf("--toggle-active-window or --t\n\tAdd the currently open application to the blacklist or remove it if it is already on there.\n");
     printf("--wait-for <seconds> or --w\n\tWaits the entered number of seconds before launching the app, or if the app is alraedy running, this will stop the app and re-run it in the second terminal after <seconds>.\n");
+    printf("--configure-pause-and-refresh-rates or --c\n\tChoose after how many seconds to pause the background apps and the frequence of refreshing your refresh-list apps. Answers must be between 0 and 10 seconds.\n");
 }
 
 void check_paths(void) {
