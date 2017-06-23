@@ -2,7 +2,7 @@
 
 int main(int argc, char *argv[])
 {  
-  int length, i = 0, opt= 0, long_index =0, exists =0;
+  int length, i = 0, opt= 0, long_index =0, exists =0, verbose=0;
   char buffer[EVENT_BUF_LEN];
   time_t first_refresh, second_refresh, first_stop, second_stop;
 
@@ -15,10 +15,11 @@ int main(int argc, char *argv[])
     {"toggle-active-window",no_argument, 0,  't' },
     {"wait-for",      required_argument, 0,  'w' },
     {"configure-pause-and-refresh-rates",      no_argument, 0,  'c' },
+    {"verbose",             no_argument, 0,  'v' },
     {    0,                     0,       0,   0  }
   };
 
-  while ((opt = getopt_long(argc, argv,"hrbklt", long_options, &long_index )) != -1) {
+  while ((opt = getopt_long(argc, argv,"hrbkltwcv", long_options, &long_index )) != -1) {
     switch (opt) {
     case 'h' :
       print_usage();
@@ -68,6 +69,9 @@ int main(int argc, char *argv[])
       }
       fprintf(fp,"#define REFRESH_RATE_S %d\n",i);
       exit(0);
+    case 'v' :
+      verbose=1;
+      break;
     }
   }
 
@@ -108,16 +112,11 @@ int main(int argc, char *argv[])
       perror( "read" );
     }  
     
-    /*read the change event one by one and process it accordingly.*/
     while ( i < length ) {     struct inotify_event *event = ( struct inotify_event * ) &buffer[ i ];     if ( event->len ) {
 	if ( event->mask & IN_MODIFY ) {
-	  //printf( "%s has been modified, changing suspended windows.\n", event->name );
 	  first_stop = time(NULL);
-	  //system("xdotool getwindowfocus getwindowpid > ~/.config/power-up/open_windows.conf");
-	  //system("wmctrl -l -p | cut -f4 -d' ' >> ~/.config/power-up/open_windows.conf");
 	  system("xdotool getwindowfocus getwindowpid > $XDG_RUNTIME_DIR/open_windows.conf");
-	  system("wmctrl -l -p | cut -f4 -d' ' >> $XDG_RUNTIME_DIR/open_windows.conf");
-	  
+	  system("wmctrl -l -p | cut -f4 -d' ' >> $XDG_RUNTIME_DIR/open_windows.conf"); 
 	  system("bash ~/.config/power-up/get_pid.sh");
 	  black_list = create_list(path_black_list_pid);
 	  refresh_list = create_list(path_refresh_list_pid);
@@ -127,6 +126,9 @@ int main(int argc, char *argv[])
 	    fscanf(fp, "%d", &pid); 
 	    if (pid == active_pid){
 	      kill(pid, SIGCONT);
+	      if(verbose ==1){
+		printf("%d Continued\n",pid);
+	      }
 	    }
 	    else if ( !member(pid,black_list) ){
 	      second_stop=time(NULL);
@@ -134,6 +136,9 @@ int main(int argc, char *argv[])
 		second_stop=time(NULL);
 	      }
 	      kill(pid, SIGSTOP);
+	      if(verbose ==1){
+		printf("%d Paused\n",pid);
+	      }
 	    }
 	  }
 	}

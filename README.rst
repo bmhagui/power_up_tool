@@ -40,23 +40,13 @@ How to use:
 
 1. Extract the application.
 
-2. Navigate to **power-up** application folder. Compile (using ``make clean all``) and launch the executable generated of the latest version of the application.
+2. Navigate to **power-up** application folder. Compile (using ``make all``) and launch the executable generated of the latest version of the application.
    
 3. Configuration files are now set up in **~/.config/config_powerup/**
    
    black_list.conf contains the names of applications you want to never suspend and
    
    refresh_list.conf the aplications you want to suspend but activate every REFRESH_RATE_S (in seconds) for a cycle of the application.
-   
-4. Finding the name or PID of applications that you wish to add to one of those lists can be done through the following commands:
-
-   Start the application with the flag **--add-black or -b**, click on a window application to add it to the black list. Press 1 then enter to continue selecting window applications or 0 to launch.
-
-   Start the application with the flag **--add-refresh or -r**, click on a window application to add it to the refresh list. Press 1 then enter to continue selecting window applications or 0 to launch.
-
-   Start the application with the flag **--list or -l**, to display a list of opened window applications and their PIDs.  
-
-   Start the application with the flag **--toggle or -t**, to add current window application to black_list(If the application is already in the black_list it will be removed).
 
 ------------------
 Auto-completition:

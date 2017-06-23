@@ -1,6 +1,6 @@
 _power_up()
 {
     local cur=${COMP_WORDS[COMP_CWORD]}
-    COMPREPLY=( $(compgen -W "--black-list --refresh-list --list-apps --kill-power-up --toggle-active-window --help --wait-for --configure-pause-and-refresh-rates" -- $cur) )
+    COMPREPLY=( $(compgen -W "--black-list --refresh-list --list-apps --kill-power-up --toggle-active-window --help --wait-for --configure-pause-and-refresh-rates --verbose" -- $cur) )
 }
 complete -F _power_up power_up
