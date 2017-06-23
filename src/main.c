@@ -25,10 +25,10 @@ int main(int argc, char *argv[])
       print_usage();
       exit (0);
     case 'r' :
-      system("ps -e | grep `xprop _NET_WM_PID | cut -f3 -d' '` | sed -e 's/[0-9]*//' | sed -e 's/\\ .*\\ //' >> ~/.config/power-up/refresh_list.conf");
+      system("ps -e | grep `xprop _NET_WM_PID | cut -f3 -d' '` | sed -e 's/[0-9]*//' | sed -e 's/\\ .*\\ //' >> ~/.config/power_up/refresh_list.conf");
       exit(0);
     case 'b' :
-      system("ps -e | grep `xprop _NET_WM_PID | cut -f3 -d' '` | sed -e 's/[0-9]*//' | sed -e 's/\\ .*\\ //' >> ~/.config/power-up/black_list.conf");
+      system("ps -e | grep `xprop _NET_WM_PID | cut -f3 -d' '` | sed -e 's/[0-9]*//' | sed -e 's/\\ .*\\ //' >> ~/.config/power_up/black_list.conf");
       exit(0);
     case 'k' :
       system("kill `pgrep power-up`");
@@ -46,8 +46,16 @@ int main(int argc, char *argv[])
       sleep(i);
       break;
     case 'c' :
-      if (( fp = fopen("/home/bhagui/power_up_tool/src/libpower.h", "r+")) == NULL){
-	perror("popen");
+      if (( pipe_popen = popen("sudo find ~ -name \"libpower.h\" | grep \"/src/libpower.h\"", "r")) == NULL)
+	{
+	  perror("popen");
+	  exit(1);
+	}
+      fscanf(pipe_popen,"%s",path_libpowerh);
+      printf("%s\n",path_libpowerh);
+      
+      if (( fp = fopen(path_libpowerh, "r+")) == NULL){
+	perror("fopen");
 	exit(1);
       }
       
@@ -78,15 +86,15 @@ int main(int argc, char *argv[])
   running_check();
   check_paths();
   
-  if (( pipe_popen = popen("xprop -root -spy _NET_ACTIVE_WINDOW | mawk -W interactive '{print $5}' > ~/.config/power-up/notif/window_change.conf", "r")) == NULL)
+  if (( pipe_popen = popen("xprop -root -spy _NET_ACTIVE_WINDOW | mawk -W interactive '{print $5}' > ~/.config/power_up/notif/window_change.conf", "r")) == NULL)
     {
       perror("popen");
       exit(1);
     }
   
   first_refresh = time(NULL);
-  printf("\nLaunched power-up.\n");
-  system("bash ~/.config/power-up/get_pid.sh");
+  printf("\nLaunched power_up.\n");
+  system("bash ~/.config/power_up/get_pid.sh");
   Liste *black_list = create_list(path_black_list_pid);
   Liste *refresh_list = create_list(path_refresh_list_pid);
 
@@ -117,7 +125,7 @@ int main(int argc, char *argv[])
 	  first_stop = time(NULL);
 	  system("xdotool getwindowfocus getwindowpid > $XDG_RUNTIME_DIR/open_windows.conf");
 	  system("wmctrl -l -p | cut -f4 -d' ' >> $XDG_RUNTIME_DIR/open_windows.conf"); 
-	  system("bash ~/.config/power-up/get_pid.sh");
+	  system("bash ~/.config/power_up/get_pid.sh");
 	  black_list = create_list(path_black_list_pid);
 	  refresh_list = create_list(path_refresh_list_pid);
 	  

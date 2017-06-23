@@ -108,7 +108,7 @@ void print_usage(void) {
 
 void check_paths(void) {
   
-  wordexp("~/.config/power-up/", &expansion, 0);
+  wordexp("~/.config/power_up/", &expansion, 0);
   strcpy(path_config_powerup, *(expansion.we_wordv));
   wordfree(&expansion);
 
@@ -160,7 +160,7 @@ void check_paths(void) {
   }
   
   printf("Checking config files and creating them if needed.\n");
-  system("cp `sudo find ~ -name \"get_pid.sh\" -user $USER | grep bin/get_pid.sh` -uv ~/.config/power-up");
+  system("cp `sudo find ~ -name \"get_pid.sh\" -user $USER | grep bin/get_pid.sh` -uv ~/.config/power_up");
   check = fopen(path_black_list,"a+");
   if( check != NULL){
     fclose(check);
@@ -185,10 +185,7 @@ void check_paths(void) {
   if( check != NULL){
     fclose(check);
   }
-  //wordfree(&expansion);
-  //system("sudo cp `sudo find ~ -name \"power-up\" -user $USER | grep bin/power-up` -uv /etc/bash_completion.d/");
-  //system(". /etc/bash_completion.d/power-up");
-  printf("--Checking Paths and Files Done--\n\n");
+  printf("--Checking Paths and Files: Done--\n\n");
 }
 
 Liste_toggle *init_toggle(void){

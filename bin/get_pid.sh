@@ -13,7 +13,7 @@ do
 		echo $pid >> $XDG_RUNTIME_DIR/black_list_pid.conf
 	fi
 
-done < ~/.config/power-up/black_list.conf
+done < ~/.config/power_up/black_list.conf
 
 > $XDG_RUNTIME_DIR/refresh_list_pid.conf
 while read -r line
@@ -27,6 +27,6 @@ do
 		echo $pid >> $XDG_RUNTIME_DIR/refresh_list_pid.conf
 	fi	
 
-done < ~/.config/power-up/refresh_list.conf
+done < ~/.config/power_up/refresh_list.conf
 
 exit 0

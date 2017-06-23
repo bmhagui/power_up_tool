@@ -1,5 +1,5 @@
-#define STOP_AFTER_S 1
-#define REFRESH_RATE_S 3
+#define STOP_AFTER_S 5
+#define REFRESH_RATE_S 2
 
 #include <stdio.h>
 #include <stdlib.h>
