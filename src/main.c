@@ -34,8 +34,8 @@ int main(int argc, char *argv[])
       exit(0);
     case 'l' :
       printf("Below is a list of currently active applications and their respective PIDS.\n\nPID\tName\n");
-      system("wmctrl -l -p | cut -f4 -d' '> ~/.config/power-up/open_windows.conf");
-      system("ps -e | grep -f ~/.config/power-up/open_windows.conf | awk '{print $1,$4}'");      
+      system("wmctrl -l -p | cut -f4 -d' '> $XDG_RUNTIME_DIR/open_windows.conf");
+      system("ps -e | grep -f $XDG_RUNTIME_DIR/open_windows.conf | awk '{print $1,$4}'");      
       exit(0);
     case 't' :
       toggle(exists);
@@ -113,8 +113,11 @@ int main(int argc, char *argv[])
 	if ( event->mask & IN_MODIFY ) {
 	  //printf( "%s has been modified, changing suspended windows.\n", event->name );
 	  first_stop = time(NULL);
-	  system("xdotool getwindowfocus getwindowpid > ~/.config/power-up/open_windows.conf");
-	  system("wmctrl -l -p | cut -f4 -d' ' >> ~/.config/power-up/open_windows.conf");
+	  //system("xdotool getwindowfocus getwindowpid > ~/.config/power-up/open_windows.conf");
+	  //system("wmctrl -l -p | cut -f4 -d' ' >> ~/.config/power-up/open_windows.conf");
+	  system("xdotool getwindowfocus getwindowpid > $XDG_RUNTIME_DIR/open_windows.conf");
+	  system("wmctrl -l -p | cut -f4 -d' ' >> $XDG_RUNTIME_DIR/open_windows.conf");
+	  
 	  system("bash ~/.config/power-up/get_pid.sh");
 	  black_list = create_list(path_black_list_pid);
 	  refresh_list = create_list(path_refresh_list_pid);

@@ -35,7 +35,7 @@ struct Liste_toggle
 char path_black_list[100], path_black_list_pid[100],
   path_refresh_list[100], path_refresh_list_pid[100], path_config_powerup[100],
   path_open_windows[100], path_window_change[100], path_notif[100], path_libpowerh[100],
-  app_name[100], read_name[100];
+  app_name[100], read_name[100], path_runtime_dir[100];
 
 struct sigaction action;
 pid_t pid, active_pid;

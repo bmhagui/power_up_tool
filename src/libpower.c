@@ -110,26 +110,37 @@ void check_paths(void) {
   wordexp("~/.config/power-up/", &expansion, 0);
   strcpy(path_config_powerup, *(expansion.we_wordv));
   wordfree(&expansion);
+
+  wordexp("$XDG_RUNTIME_DIR/", &expansion, 0);
+  strcpy(path_runtime_dir, *(expansion.we_wordv));
+  wordfree(&expansion);
+  
   strcpy(path_black_list, path_config_powerup);
   strcat(path_black_list, "black_list.conf");
-  strcpy(path_black_list_pid, path_config_powerup);
+  
+  strcpy(path_black_list_pid, path_runtime_dir);
   strcat(path_black_list_pid, "black_list_pid.conf");
+  
   strcpy(path_refresh_list, path_config_powerup);
   strcat(path_refresh_list, "refresh_list.conf");
-  strcpy(path_refresh_list_pid, path_config_powerup);
+  
+  strcpy(path_refresh_list_pid, path_runtime_dir);
   strcat(path_refresh_list_pid, "refresh_list_pid.conf");
-  strcpy(path_open_windows, path_config_powerup);
+  
+  strcpy(path_open_windows, path_runtime_dir);
   strcat(path_open_windows, "open_windows.conf");
+  
   strcpy(path_window_change, path_config_powerup);
   strcat(path_window_change, "notif/window_change.conf");
+  
   strcpy(path_notif, path_config_powerup);
   strcat(path_notif, "notif/");
   
-  dir = opendir(path_config_powerup);
+  dir = opendir(path_notif);
   if (dir == NULL){
     /* Error */
     if (ENOENT == errno){
-      printf("Config folder does not exist, creating now.\n"); 
+      printf("Config folder missing, creating now.\n"); 
       if (mkdir(path_config_powerup, 00700) < 0){
 	perror("mkdir error config_powerup");
       }
