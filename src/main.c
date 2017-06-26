@@ -2,6 +2,9 @@
 
 int main(int argc, char *argv[])
 {
+  getcwd(path_black_list,100);
+  printf("%s\n",path_black_list);
+  
   action.sa_handler = hand;
   sigaction(SIGINT,&action,NULL);
   sigaction(SIGTERM,&action,NULL);
@@ -68,7 +71,8 @@ int main(int argc, char *argv[])
       }
       exit(0);
     case 'k' :
-      system("kill `pgrep power-up`");
+      //system("kill `pgrep power_up`");
+      system("pkill -SIGINT power_up");
       exit(0);
     case 'l' :
       printf("Below is a list of currently active applications and their respective PIDS.\n\nPID\tName\n");
