@@ -16,7 +16,8 @@ void hand(int sig)
     inotify_rm_watch( fd, wd );
     close(fd);
     fclose(fp);
-    //pclose(pipe_popen);
+    //pclose(pipe_popen); will wait for child process indefinitely..this is the alternative
+    system("pkill -SIGTERM xprop");
     exit(0);
   }
   else {
@@ -94,7 +95,7 @@ Liste *create_list(char *file_path){
 }
 
 void print_usage(void) {
-    printf("Usage: ./latest_version [OPTION]\nWith no arguments the application is launched normally.\n\n");
+    printf("Usage: ./power_up [OPTION]\nWith no arguments the application is launched normally.\n\n");
     printf("[OPTION]:\n");
     printf("--refresh-list or --r\n\tadd the next window you click on's PID to the application's refresh list.\n");
     printf("--black-list or --b\n\tadd the next window you click on's PID to the application's black list.\n");

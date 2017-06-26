@@ -1,15 +1,20 @@
 #include "libpower.h"
 
 int main(int argc, char *argv[])
-{  
+{
+  action.sa_handler = hand;
+  sigaction(SIGINT,&action,NULL);
+  sigaction(SIGTERM,&action,NULL);
+  check_paths();
+  
   int length, i = 0, opt= 0, long_index =0, exists =0, verbose=0;
   char buffer[EVENT_BUF_LEN];
   time_t first_refresh, second_refresh, first_stop, second_stop;
 
   static struct option long_options[] = {
     {"help",                no_argument, 0,  'h' },
-    {"refresh-list",        no_argument, 0,  'r' },
-    {"black-list",          no_argument, 0,  'b' },
+    {"refresh-list",        optional_argument, 0,  'r' },
+    {"black-list",          optional_argument, 0,  'b' },
     {"kill-power-up",       no_argument, 0,  'k' },
     {"list-apps",           no_argument, 0,  'l' },
     {"toggle-active-window",no_argument, 0,  't' },
@@ -25,10 +30,28 @@ int main(int argc, char *argv[])
       print_usage();
       exit (0);
     case 'r' :
-      system("ps -e | grep `xprop _NET_WM_PID | cut -f3 -d' '` | sed -e 's/[0-9]*//' | sed -e 's/\\ .*\\ //' >> ~/.config/power_up/refresh_list.conf");
+      if (argc > 2){
+	check=fopen(path_refresh_list,"a+");
+	for (i=2;i<argc;i++){
+	  printf("%s",argv[i]);
+	  fprintf(check,"%s\n",argv[i]);
+	}
+      }
+      else{
+	system("ps -e | grep `xprop _NET_WM_PID | cut -f3 -d' '` | sed -e 's/[0-9]*//' | sed -e 's/\\ .*\\ //' >> ~/.config/power_up/refresh_list.conf");
+      }
       exit(0);
     case 'b' :
-      system("ps -e | grep `xprop _NET_WM_PID | cut -f3 -d' '` | sed -e 's/[0-9]*//' | sed -e 's/\\ .*\\ //' >> ~/.config/power_up/black_list.conf");
+      if (argc > 2){
+	check=fopen(path_black_list,"a+");
+	for (i=2;i<argc;i++){
+	  printf("%s",argv[i]);
+	  fprintf(check,"%s\n",argv[i]);
+	}
+      }
+      else{
+	system("ps -e | grep `xprop _NET_WM_PID | cut -f3 -d' '` | sed -e 's/[0-9]*//' | sed -e 's/\\ .*\\ //' >> ~/.config/power_up/black_list.conf");
+      }
       exit(0);
     case 'k' :
       system("kill `pgrep power-up`");
@@ -42,7 +65,7 @@ int main(int argc, char *argv[])
       toggle(exists);
     case 'w' :
       i = strtol(optarg, NULL, 10);
-      system("pkill -SIGINT power-up");
+      system("pkill -SIGINT power_up");
       sleep(i);
       break;
     case 'c' :
@@ -80,13 +103,15 @@ int main(int argc, char *argv[])
     case 'v' :
       verbose=1;
       break;
+    default:
+      printf("\nInvalid argument. Refer to --help or -h for valid options.\n");
+      exit(0);
     }
   }
 
   running_check();
-  check_paths();
   
-  if (( pipe_popen = popen("xprop -root -spy _NET_ACTIVE_WINDOW | mawk -W interactive '{print $5}' > ~/.config/power_up/notif/window_change.conf", "r")) == NULL)
+  if (( pipe_popen = popen("xprop -root -spy _NET_ACTIVE_WINDOW | mawk -W interactive '{print $5}' > ~/.config/power_up/notif/window_change.conf", "w")) == NULL)
     {
       perror("popen");
       exit(1);
@@ -97,10 +122,6 @@ int main(int argc, char *argv[])
   system("bash ~/.config/power_up/get_pid.sh");
   Liste *black_list = create_list(path_black_list_pid);
   Liste *refresh_list = create_list(path_refresh_list_pid);
-
-  action.sa_handler = hand;
-  sigaction(SIGINT,&action,NULL);
-  sigaction(SIGTERM,&action,NULL);
   
   fd = inotify_init();
   if ( fd < 0 ) {
