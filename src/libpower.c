@@ -293,3 +293,21 @@ void running_check(void){
     exit(1);
   }
 }
+
+void add_to_list(char * app_name, FILE *fp, int exists){
+  if (fp==NULL){
+    perror("add_to_list pointer is non valid");
+  }
+  exists=0;
+  while(fscanf(fp, "%s", read_name)>0){
+    if(strncmp(app_name,read_name,strlen(read_name))==0){
+      exists=1;
+    }
+  }
+  if (exists==0){
+    fprintf(fp,"%s\n",app_name);
+  }
+  else{
+    printf("%s is already on the list chosen to add to.\n", app_name);
+  }
+}

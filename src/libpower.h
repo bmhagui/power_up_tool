@@ -84,3 +84,5 @@ void rewrite_file(Liste_toggle *liste, FILE *fp);
 void toggle(int exists);
 
 void running_check(void);
+
+void add_to_list(char * app_name, FILE *fp, int exists);

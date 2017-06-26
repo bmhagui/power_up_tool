@@ -33,24 +33,38 @@ int main(int argc, char *argv[])
       if (argc > 2){
 	check=fopen(path_refresh_list,"a+");
 	for (i=2;i<argc;i++){
-	  printf("%s",argv[i]);
-	  fprintf(check,"%s\n",argv[i]);
+	  add_to_list(argv[i],check,exists);
 	}
       }
       else{
-	system("ps -e | grep `xprop _NET_WM_PID | cut -f3 -d' '` | sed -e 's/[0-9]*//' | sed -e 's/\\ .*\\ //' >> ~/.config/power_up/refresh_list.conf");
+	if (( pipe_popen = popen("ps -e | grep `xprop _NET_WM_PID | cut -f3 -d' '` | sed -e 's/[0-9]*//' | sed -e 's/\\ .*\\ //'", "r")) == NULL)
+	  {
+	    perror("popen");
+	    exit(1);
+	  }
+	fscanf(pipe_popen,"%s",app_name);
+	pclose(pipe_popen);
+	check=fopen(path_refresh_list,"a+");
+	add_to_list(app_name,check,exists);
       }
       exit(0);
     case 'b' :
       if (argc > 2){
 	check=fopen(path_black_list,"a+");
 	for (i=2;i<argc;i++){
-	  printf("%s",argv[i]);
-	  fprintf(check,"%s\n",argv[i]);
+	  add_to_list(argv[i],check,exists);
 	}
       }
       else{
-	system("ps -e | grep `xprop _NET_WM_PID | cut -f3 -d' '` | sed -e 's/[0-9]*//' | sed -e 's/\\ .*\\ //' >> ~/.config/power_up/black_list.conf");
+	if (( pipe_popen = popen("ps -e | grep `xprop _NET_WM_PID | cut -f3 -d' '` | sed -e 's/[0-9]*//' | sed -e 's/\\ .*\\ //'", "r")) == NULL)
+	  {
+	    perror("popen");
+	    exit(1);
+	  }
+	fscanf(pipe_popen,"%s",app_name);
+	pclose(pipe_popen);
+	check=fopen(path_black_list,"a+");
+	add_to_list(app_name,check,exists);
       }
       exit(0);
     case 'k' :
