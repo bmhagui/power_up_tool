@@ -6,7 +6,7 @@ int main(int argc, char *argv[])
   sigaction(SIGINT,&action,NULL);
   sigaction(SIGTERM,&action,NULL);
   check_paths();
-  int length, i = 0, opt= 0, long_index =0, exists =0, verbose=0;
+  int length, i = 0, opt= 0, long_index =0, exists =0, verbose=0, STOP_AFTER_S=0, REFRESH_RATE_S=0;
   char buffer[EVENT_BUF_LEN];
   time_t first_refresh, second_refresh, first_stop, second_stop;
 
@@ -67,7 +67,6 @@ int main(int argc, char *argv[])
       }
       exit(0);
     case 'k' :
-      //system("kill `pgrep power_up`");
       system("pkill -SIGINT power_up");
       exit(0);
     case 'l' :
@@ -82,37 +81,19 @@ int main(int argc, char *argv[])
       system("pkill -SIGINT power_up");
       sleep(i);
       break;
-    case 'c' :
-      if (( pipe_popen = popen("sudo find ~ -name \"libpower.h\" | grep \"/src/libpower.h\"", "r")) == NULL)
-	{
-	  perror("popen");
-	  exit(1);
-	}
-      fscanf(pipe_popen,"%s",path_libpowerh);
-      printf("%s\n",path_libpowerh);
-      
-      if (( fp = fopen(path_libpowerh, "r+")) == NULL){
+    case 'c' :      
+      if (( fp = fopen(path_time, "w")) == NULL){
 	perror("fopen");
 	exit(1);
       }
       
-      fscanf(fp,"%s",read_name);
-      rewind(fp);
       printf("After how many seconds would you like to pause your applications?\n");
       scanf("%d",&i);
-      while(i>9 || i<0){
-	printf("Answer MUST be between 1 and 10 seconds.\n");
-	scanf("%d",&i);
-      }
-      
-      fprintf(fp,"#define STOP_AFTER_S %d\n",i);
+      fprintf(fp,"%d\n",i);
       printf("At what frequencey would you like to refresh your refresh-list applications?\n");
       scanf("%d",&i);
-      while(i>9 || i<0){
-	printf("Answer MUST be between 1 and 10 seconds.\n");
-	scanf("%d",&i);
-      }
-      fprintf(fp,"#define REFRESH_RATE_S %d\n",i);
+      fprintf(fp,"%d\n",i);
+      fclose(fp);
       exit(0);
     case 'v' :
       verbose=1;
@@ -123,6 +104,25 @@ int main(int argc, char *argv[])
     }
   }
 
+  //Updating frequencies of pausing and refreshing
+  if (( fp = fopen(path_time, "r")) == NULL){
+    perror("fopen");
+    exit(1);
+  }
+  
+  if (fscanf(fp,"%d",&STOP_AFTER_S)!=EOF){
+    fscanf(fp,"%d",&REFRESH_RATE_S);
+  }
+  else
+    {
+      STOP_AFTER_S=1;
+      REFRESH_RATE_S=5;
+    }
+
+  //printf("%d\n\n\n",STOP_AFTER_S);
+  //printf("%d\n\n\n",REFRESH_RATE_S);
+  fclose(fp);
+  
   running_check();
   
   if (( pipe_popen = popen("xprop -root -spy _NET_ACTIVE_WINDOW | mawk -W interactive '{print $5}' > ~/.config/power_up/notif/window_change.conf", "w")) == NULL)

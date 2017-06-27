@@ -1,6 +1,3 @@
-#define STOP_AFTER_S 1
-#define REFRESH_RATE_S 3
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/inotify.h>
@@ -34,7 +31,7 @@ struct Liste_toggle
 
 char path_black_list[100], path_black_list_pid[100],
   path_refresh_list[100], path_refresh_list_pid[100], path_config_powerup[100],
-  path_open_windows[100], path_window_change[100], path_notif[100], path_libpowerh[100],
+  path_open_windows[100], path_window_change[100], path_notif[100], path_time[100],
   app_name[100], read_name[100], path_runtime_dir[100], get_pid_command[100], tmp[100];
 
 struct sigaction action;

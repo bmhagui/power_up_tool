@@ -115,6 +115,9 @@ void check_paths(void) {
   wordexp("$XDG_RUNTIME_DIR/", &expansion, 0);
   strcpy(path_runtime_dir, *(expansion.we_wordv));
   wordfree(&expansion);
+
+  strcpy(path_time, path_config_powerup);
+  strcat(path_time, "time.conf");
   
   strcpy(path_black_list, path_config_powerup);
   strcat(path_black_list, "black_list.conf");
@@ -180,6 +183,10 @@ void check_paths(void) {
   system(get_pid_command);
   
   //system cp
+  check = fopen(path_time,"a+");
+  if( check != NULL){
+    fclose(check);
+  }
   check = fopen(path_black_list,"a+");
   if( check != NULL){
     fclose(check);
