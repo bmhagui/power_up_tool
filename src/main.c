@@ -2,14 +2,10 @@
 
 int main(int argc, char *argv[])
 {
-  getcwd(path_black_list,100);
-  printf("%s\n",path_black_list);
-  
   action.sa_handler = hand;
   sigaction(SIGINT,&action,NULL);
   sigaction(SIGTERM,&action,NULL);
   check_paths();
-  
   int length, i = 0, opt= 0, long_index =0, exists =0, verbose=0;
   char buffer[EVENT_BUF_LEN];
   time_t first_refresh, second_refresh, first_stop, second_stop;
@@ -151,7 +147,7 @@ int main(int argc, char *argv[])
   if(fp==NULL){
     perror("cannot open file open_windows.conf");
   }
-  
+
   while(1){
     i=0;
     length = read( fd, buffer, EVENT_BUF_LEN );

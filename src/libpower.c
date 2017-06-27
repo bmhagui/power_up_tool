@@ -16,7 +16,6 @@ void hand(int sig)
     inotify_rm_watch( fd, wd );
     close(fd);
     fclose(fp);
-    //pclose(pipe_popen); will wait for child process indefinitely..this is the alternative
     system("pkill -SIGTERM xprop");
     exit(0);
   }
@@ -161,7 +160,26 @@ void check_paths(void) {
   }
   
   printf("Checking config files and creating them if needed.\n");
-  system("cp `sudo find ~ -name \"get_pid.sh\" -user $USER | grep bin/get_pid.sh` -uv ~/.config/power_up");
+  //get_pid.sh find
+
+  sprintf(tmp,"%d",getpid());
+  strcpy(get_pid_command,"stat /proc/");
+  strcat(get_pid_command,tmp);
+  strcat(get_pid_command,"/exe | grep /home/ | sed 's/.*File.*-> //' | sed 's/[a-z]*_[a-z]*$//'");
+  
+  if (( pipe_popen = popen(get_pid_command, "r")) == NULL)
+    {
+      perror("popen");
+      exit(1);
+    }
+  fscanf(pipe_popen,"%s",tmp);
+  pclose(pipe_popen);
+  strcpy(get_pid_command, "cp ");
+  strcat(get_pid_command,tmp);
+  strcat(get_pid_command,"bin/get_pid.sh -uv ~/.config/power_up\n");
+  system(get_pid_command);
+  
+  //system cp
   check = fopen(path_black_list,"a+");
   if( check != NULL){
     fclose(check);
