@@ -16,6 +16,17 @@
 #define EVENT_SIZE  ( sizeof (struct inotify_event) )
 #define EVENT_BUF_LEN     ( 1024 * ( EVENT_SIZE + 16 ) )
 
+typedef struct Element Element;
+struct Element{
+    pid_t pid;
+    Element *next;
+};
+
+typedef struct Liste Liste;
+struct Liste{
+    Element *first;
+};
+
 typedef struct Element_toggle Element_toggle;
 struct Element_toggle
 {
@@ -29,12 +40,16 @@ struct Liste_toggle
     Element_toggle *premier;
 };
 
+struct sigaction action;
+
+Liste *black_list, *refresh_list;
+
 char path_black_list[100], path_black_list_pid[100],
   path_refresh_list[100], path_refresh_list_pid[100], path_config_powerup[100],
   path_open_windows[100], path_window_change[100], path_notif[100], path_time[100],
   app_name[100], read_name[100], path_runtime_dir[100], get_pid_command[100], tmp[100];
 
-struct sigaction action;
+
 pid_t pid, active_pid;
 int fd, wd;
 FILE *fp,*fl,*flp, *pipe_popen, *check;
@@ -45,17 +60,6 @@ void activate_all(void);
 
 void hand(int sig);
 
-typedef struct Element Element;
-struct Element{
-    pid_t pid;
-    Element *next;
-};
-
-typedef struct Liste Liste;
-struct Liste{
-    Element *first;
-};
-
 void activate_list(Liste *liste);
 
 Liste *initialisation(void);
@@ -64,7 +68,9 @@ void insertion(Liste *liste, pid_t new_pid);
 
 bool member(pid_t cpid, Liste *liste);
 
-Liste *create_list(char *file_path);
+Liste *create_list(char *file_path, Liste *mylist);
+
+void delete_list(Liste *liste);
 
 void print_usage(void);
 

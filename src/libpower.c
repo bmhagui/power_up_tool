@@ -16,6 +16,12 @@ void hand(int sig)
     inotify_rm_watch( fd, wd );
     close(fd);
     fclose(fp);
+
+    delete_list(black_list);
+    delete_list(refresh_list);
+    free(black_list);
+    free(refresh_list);
+    
     system("pkill -SIGTERM xprop");
     exit(0);
   }
@@ -77,10 +83,8 @@ bool member(pid_t cpid, Liste *liste){
   return res;
 }
 
-Liste *create_list(char *file_path){
-  
-  Liste *mylist = initialisation();
-  
+Liste *create_list(char *file_path, Liste *mylist){
+    
   fl = fopen(file_path,"r");
   if(fl==NULL){
     perror("create_list error");
@@ -93,17 +97,28 @@ Liste *create_list(char *file_path){
   return mylist; 
 }
 
+void delete_list(Liste *liste){
+   if (liste == NULL){
+        exit(EXIT_FAILURE);
+    }
+    while (liste->first != NULL){
+        Element *aSupprimer = liste->first;
+        liste->first = liste->first->next;
+        free(aSupprimer);
+    }
+}
+
 void print_usage(void) {
     printf("Usage: ./power_up [OPTION]\nWith no arguments the application is launched normally.\n\n");
     printf("[OPTION]:\n");
-    printf("--refresh-list or --r\n\tadd the next window you click on's PID to the application's refresh list.\n");
-    printf("--black-list or --b\n\tadd the next window you click on's PID to the application's black list.\n");
-    printf("--kill-power-up or --k\n\tbrutally terminate the powerup tool running in the background.\n");
-    printf("--list-apps or --l\n\tdisplay a list of open window applications and their PIDs.\n");
-    printf("--toggle-active-window or --t\n\tAdd the currently open application to the blacklist or remove it if it is already on there.\n");
+    printf("--refresh-list or -r\n\tadd the next window you click on's PID to the application's refresh list.\n");
+    printf("--black-list or -b\n\tadd the next window you click on's PID to the application's black list.\n");
+    printf("--kill-power-up or --k\n\tTerminate the powerup tool currently running.\n");
+    printf("--list-apps or -l\n\tdisplay a list of open window applications and their PIDs.\n");
+    printf("--toggle-active-window or -t\n\tAdd the currently open application to the blacklist or remove it if it is already on there.\n");
     printf("--wait-for <seconds> or --w\n\tWaits the entered number of seconds before launching the app.\n\tIf the app is alraedy running, this will stop the app and re-run it in the second terminal after <seconds>.\n");
-    printf("--configure-pause-and-refresh-rates or --c\n\tChoose after how many seconds to pause the background apps and the frequence of refreshing your refresh-list apps.\n\tAnswers must be between 0 and 10 seconds.\n");
-    printf("--verbose or --v\n\tLaunch the app and print out the PID of each application and whether it was paused or continued.\n");
+    printf("--configure-pause-and-refresh-rates or -c\n\tChoose after how many seconds to pause the background apps and the frequence of refreshing your refresh-list apps.\n\tAnswers must be between 0 and 10 seconds.\n");
+    printf("--verbose or -v\n\tLaunch the app and print out the PID of each application and whether it was paused or continued.\n");
 }
 
 void check_paths(void) {
@@ -177,9 +192,10 @@ void check_paths(void) {
     }
   fscanf(pipe_popen,"%s",tmp);
   pclose(pipe_popen);
-  strcpy(get_pid_command, "cp ");
+  strcpy(get_pid_command, "cp -uv ");
   strcat(get_pid_command,tmp);
-  strcat(get_pid_command,"bin/get_pid.sh -uv ~/.config/power_up\n");
+  strcat(get_pid_command,"bin/get_pid.sh ~/.config/power_up\n");
+  //printf("%s\n",get_pid_command);
   system(get_pid_command);
   
   //system cp
@@ -248,6 +264,7 @@ void delete_toggle(Liste_toggle *liste){
         liste->premier = liste->premier->suivant;
         free(aSupprimer);
     }
+    free(liste);
 }
 
 void rewrite_file(Liste_toggle *liste, FILE *fp){

@@ -50,7 +50,7 @@ How to use:
 
 4. To change the application refresh frequency or the time after which the applications are paused:
 
-   Launch the application with the flag **--configure-pause-and-refresh-rates**.
+   Launch the application with the flag **--configure-pause-and-refresh-rates or -c**.
 
    ``./power_up --configure-pause-and-refresh-rates``
 

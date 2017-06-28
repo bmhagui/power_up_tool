@@ -133,9 +133,12 @@ int main(int argc, char *argv[])
   
   first_refresh = time(NULL);
   printf("\nLaunched power_up.\n");
-  system("bash ~/.config/power_up/get_pid.sh");
-  Liste *black_list = create_list(path_black_list_pid);
-  Liste *refresh_list = create_list(path_refresh_list_pid);
+  
+  //system("bash ~/.config/power_up/get_pid.sh");
+  black_list = initialisation();
+  //create_list(path_black_list_pid,black_list);
+  refresh_list = initialisation();
+  //create_list(path_refresh_list_pid,refresh_list);
   
   fd = inotify_init();
   if ( fd < 0 ) {
@@ -160,9 +163,12 @@ int main(int argc, char *argv[])
 	  first_stop = time(NULL);
 	  system("xdotool getwindowfocus getwindowpid > $XDG_RUNTIME_DIR/open_windows.conf");
 	  system("wmctrl -l -p | cut -f4 -d' ' >> $XDG_RUNTIME_DIR/open_windows.conf"); 
+
 	  system("bash ~/.config/power_up/get_pid.sh");
-	  black_list = create_list(path_black_list_pid);
-	  refresh_list = create_list(path_refresh_list_pid);
+	  delete_list(black_list);
+	  delete_list(refresh_list);
+	  create_list(path_black_list_pid,black_list);
+	  create_list(path_refresh_list_pid,refresh_list);
 	  
 	  fscanf(fp, "%d", &active_pid);
 	  while( !feof(fp)) {
@@ -174,6 +180,15 @@ int main(int argc, char *argv[])
 	      }
 	    }
 	    else if ( !member(pid,black_list) ){
+
+	      /*sprintf(tmp,"%d",STOP_AFTER_S);
+	      strcpy(get_pid_command,"sleep ");
+	      strcat(get_pid_command,tmp);
+	      strcat(get_pid_command,"; kill -STOP ");
+	      sprintf(tmp,"%d",pid);
+	      strcat(get_pid_command,tmp);
+	      system(get_pid_command);*/
+
 	      second_stop=time(NULL);
 	      while (second_stop-first_stop < STOP_AFTER_S){
 		second_stop=time(NULL);
