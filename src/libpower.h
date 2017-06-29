@@ -40,9 +40,24 @@ struct Liste_toggle
     Element_toggle *premier;
 };
 
+typedef struct Proc Proc;
+struct Proc{
+  pid_t pid;
+  time_t time_added;
+  time_t time_now;
+  Proc *next;
+};
+
+typedef struct Stop_list Stop_list;
+struct Stop_list{
+  int count_procs;
+  Proc *first;
+};
+
 struct sigaction action;
 
 Liste *black_list, *refresh_list;
+Stop_list *stop_list;
 
 char path_black_list[100], path_black_list_pid[100],
   path_refresh_list[100], path_refresh_list_pid[100], path_config_powerup[100],
@@ -52,7 +67,7 @@ char path_black_list[100], path_black_list_pid[100],
 
 pid_t pid, active_pid;
 int fd, wd;
-FILE *fp,*fl,*flp, *pipe_popen, *check;
+FILE *fp,*fl,*flp, *pipe_popen, *check, *pipe_wc;
 DIR* dir;
 wordexp_t expansion;
 
@@ -89,3 +104,13 @@ void toggle(int exists);
 void running_check(void);
 
 void add_to_list(char * app_name, FILE *fp, int exists);
+
+Stop_list *init_stop_list(FILE *fp);
+
+void add_equal_count(Stop_list *list, pid_t new_active_pid, pid_t old_active_pid);
+
+void affiche_stop_liste(Stop_list *list);
+
+void add_diff_count(Stop_list *list, pid_t pid, int num);
+
+void pause_procs(Stop_list list);

@@ -6,7 +6,7 @@ int main(int argc, char *argv[])
   sigaction(SIGINT,&action,NULL);
   sigaction(SIGTERM,&action,NULL);
   check_paths();
-  int length, i = 0, opt= 0, long_index =0, exists =0, verbose=0, STOP_AFTER_S=0, REFRESH_RATE_S=0;
+  int length, i = 0, opt= 0, long_index =0, exists =0, verbose=0, STOP_AFTER_S=0, REFRESH_RATE_S=0, count=0;
   char buffer[EVENT_BUF_LEN];
   time_t first_refresh, second_refresh, first_stop, second_stop;
 
@@ -146,11 +146,20 @@ int main(int argc, char *argv[])
   }
   
   wd = inotify_add_watch( fd, path_notif, IN_MODIFY); 
+
+  //Stop_list
+  system("wmctrl -l -p | grep -v `xdotool getwindowfocus getwindowpid` | cut -f4 -d' ' > $XDG_RUNTIME_DIR/open_windows.conf");
+  //Stop_list
+
   fp = fopen(path_open_windows,"r");
   if(fp==NULL){
     perror("cannot open file open_windows.conf");
   }
-
+  
+  stop_list = init_stop_list(fp); 
+  affiche_stop_liste(stop_list);
+  printf("-----------------\n");
+  
   while(1){
     i=0;
     length = read( fd, buffer, EVENT_BUF_LEN );
@@ -165,8 +174,27 @@ int main(int argc, char *argv[])
 	  system("kill -CONT `xdotool getwindowfocus getwindowpid`");	  
 	  //system("xdotool getwindowfocus getwindowpid > $XDG_RUNTIME_DIR/open_windows.conf");
 	  //system("wmctrl -l -p | cut -f4 -d' ' >> $XDG_RUNTIME_DIR/open_windows.conf"); 
-	  system("wmctrl -l -p | grep -v `xdotool getwindowfocus getwindowpid` | cut -f4 -d' ' > $XDG_RUNTIME_DIR/open_windows.conf");
+	  system("wmctrl -l -p | grep -v `xdotool getwindowfocus getwindowpid` | cut -f4 -d' ' | sort -u> $XDG_RUNTIME_DIR/open_windows.conf");
+
+	  //STOP
+	  if (( pipe_wc = popen("wc -l $XDG_RUNTIME_DIR/open_windows.conf | cut -f1 -d' '", "r")) == NULL)
+	    {
+	      perror("popen");
+	      exit(1);
+	    }
+	  fscanf(pipe_wc,"%d",&count);
+	  pclose(pipe_wc);
+
+
+	  printf("count= %d\ncount_procs= %d\n",count,stop_list->count_procs);
+	  if (count==stop_list->count_procs){
+	    printf("same\n");
+	  }
+	  else{
+	    printf("Different!!!\n");
+	  }
 	  
+	  //STOP LIST
 	  system("bash ~/.config/power_up/get_pid.sh");
 	  delete_list(black_list);
 	  delete_list(refresh_list);

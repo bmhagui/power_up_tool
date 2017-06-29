@@ -353,3 +353,87 @@ void add_to_list(char * app_name, FILE *fp, int exists){
     printf("%s is already on the list chosen to add to.\n", app_name);
   }
 }
+
+Stop_list *init_stop_list(FILE *fp){
+  Stop_list *list = malloc(sizeof(*list));
+  pid_t tmp;
+  int i=0;
+  if (list == NULL || fp==NULL){
+    exit(EXIT_FAILURE);
+  }
+  list->first = NULL;
+
+  while (fscanf(fp, "%d", &tmp)>0){
+    Proc *process = malloc(sizeof(*process));
+    process->next=list->first;
+    list->first = process;
+    process->pid = tmp;
+    process->time_added=time(NULL);
+    process->time_now=0;
+    i++;
+  }
+  list->count_procs=i;
+  return list;
+}
+
+void add_equal_count(Stop_list *list, pid_t new_active_pid, pid_t old_active_pid){
+  Proc *pt_process;
+  Proc *pt_previous;
+  if (list == NULL){
+    exit(EXIT_FAILURE);
+  }
+  pt_process=list->first;
+
+  while (pt_process->pid != new_active_pid){
+    pt_previous = pt_process;
+    pt_process = pt_process->next;
+  }
+  pt_previous->next = pt_process->next;
+  free(pt_process);
+  
+  while(pt_previous->next!=NULL){
+    pt_previous=pt_previous->next;
+  }
+  Proc *process = malloc(sizeof(*process));
+  
+  pt_previous->next = process;
+
+  process->next=NULL;
+  process->pid = old_active_pid;
+  process->time_added=time(NULL);
+  process->time_now=0;
+
+}
+
+void affiche_stop_liste(Stop_list *list){
+  Proc *pt_process=list->first;
+  while (pt_process!=NULL){
+    printf("Element: ,%d\n",pt_process->pid);
+    pt_process = pt_process->next;
+  }
+  printf("Number of procs: %d\n",list->count_procs);
+}
+
+void add_diff_count(Stop_list *list, pid_t pid, int num){
+  Proc *pt_previous;
+  if (list == NULL){
+    exit(EXIT_FAILURE);
+  }
+  pt_previous=list->first;
+  
+  while(pt_previous->next!=NULL){
+    pt_previous=pt_previous->next;
+  }
+  Proc *process = malloc(sizeof(*process));
+  
+  pt_previous->next = process;
+
+  process->next=NULL;
+  process->pid = pid;
+  process->time_added=time(NULL);
+  process->time_now=0;
+
+  list->count_procs=num;
+}
+
+void pause_procs(Stop_list list);
