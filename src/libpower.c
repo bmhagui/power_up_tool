@@ -459,20 +459,31 @@ void add_diff_count(Stop_list *list, pid_t pid, int num){
     exit(EXIT_FAILURE);
   }
   if (num!=0){
-    pt_previous=list->first;
-    while(pt_previous->next!=NULL){
-      pt_previous=pt_previous->next;
+    if (num<list->count_procs){
+      printf("less\n");
+      while (list->first != NULL){
+        Proc *aSupprimer = list->first;
+        list->first = list->first->next;
+        free(aSupprimer);
+      }
+      stop_list = init_stop_list(fp);
     }
-    Proc *process = malloc(sizeof(*process));
-    
-    pt_previous->next = process;
-    
-    process->next=NULL;
-    process->pid = pid;
-    process->time_added=time(NULL);
-    process->time_now=0;
-    
-    list->count_procs=num;
+    else{
+      pt_previous=list->first;
+      while(pt_previous->next!=NULL){
+	pt_previous=pt_previous->next;
+      }
+      Proc *process = malloc(sizeof(*process));
+      
+      pt_previous->next = process;
+      
+      process->next=NULL;
+      process->pid = pid;
+      process->time_added=time(NULL);
+      process->time_now=0;
+      
+      list->count_procs=num;
+    }
   }
 }
 void pause_procs(Stop_list list);
