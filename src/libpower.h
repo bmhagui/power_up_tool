@@ -65,7 +65,7 @@ char path_black_list[100], path_black_list_pid[100],
   app_name[100], read_name[100], path_runtime_dir[100], get_pid_command[100], tmp[100];
 
 
-pid_t pid, active_pid;
+pid_t pid, new_active_pid, old_active_pid;
 int fd, wd;
 FILE *fp,*fl,*flp, *pipe_popen, *check, *pipe_wc;
 DIR* dir;
@@ -114,3 +114,5 @@ void affiche_stop_liste(Stop_list *list);
 void add_diff_count(Stop_list *list, pid_t pid, int num);
 
 void pause_procs(Stop_list list);
+
+void black_listing(FILE *fp, Stop_list *list);

@@ -376,42 +376,81 @@ Stop_list *init_stop_list(FILE *fp){
   return list;
 }
 
+/*void add_equal_count(Stop_list *list, pid_t new_active_pid, pid_t old_active_pid){
+  Proc *pt_process;
+  Proc *pt_previous;
+  if (list == NULL){
+    exit(EXIT_FAILURE);
+  }
+  if (old_active_pid != 0){
+    pt_process=list->first;
+    while (pt_process->pid != new_active_pid && pt_process->next!=NULL){
+      printf("once\n");
+      pt_previous = pt_process;
+      pt_process = pt_process->next;
+    } 
+    
+    pt_previous->next = pt_process->next;
+    free(pt_process);
+    
+    while(pt_previous->next!=NULL){
+      pt_previous=pt_previous->next;
+    }
+    Proc *process = malloc(sizeof(*process));
+    
+    pt_previous->next = process;
+    
+    process->next=NULL;
+    process->pid = old_active_pid;
+    process->time_added=time(NULL);
+    process->time_now=0;
+  }
+}*/
 void add_equal_count(Stop_list *list, pid_t new_active_pid, pid_t old_active_pid){
   Proc *pt_process;
   Proc *pt_previous;
   if (list == NULL){
     exit(EXIT_FAILURE);
   }
-  pt_process=list->first;
+  if (old_active_pid != 0 && new_active_pid!=old_active_pid){
+    pt_process=list->first;
+    if (pt_process->pid == new_active_pid){
+      list->first = pt_process->next;
+      free(pt_process);
+    }
+    else{
+      while (pt_process->pid != new_active_pid && pt_process->next!=NULL){
+	pt_previous = pt_process;
+	pt_process = pt_process->next;
+      }
+      pt_previous->next = pt_process->next;
+      free(pt_process);
+    }
 
-  while (pt_process->pid != new_active_pid){
-    pt_previous = pt_process;
-    pt_process = pt_process->next;
+    pt_previous=list->first;
+
+    while(pt_previous->next!=NULL){
+      pt_previous=pt_previous->next;
+    }
+    Proc *process = malloc(sizeof(*process));
+    
+    pt_previous->next = process;
+    
+    process->next=NULL;
+    process->pid = old_active_pid;
+    process->time_added=time(NULL);
+    process->time_now=0;
   }
-  pt_previous->next = pt_process->next;
-  free(pt_process);
-  
-  while(pt_previous->next!=NULL){
-    pt_previous=pt_previous->next;
-  }
-  Proc *process = malloc(sizeof(*process));
-  
-  pt_previous->next = process;
-
-  process->next=NULL;
-  process->pid = old_active_pid;
-  process->time_added=time(NULL);
-  process->time_now=0;
-
 }
 
 void affiche_stop_liste(Stop_list *list){
   Proc *pt_process=list->first;
+  printf("Processed to be stopped:\n");
   while (pt_process!=NULL){
-    printf("Element: ,%d\n",pt_process->pid);
+    printf("Element: %d\n",pt_process->pid);
     pt_process = pt_process->next;
   }
-  printf("Number of procs: %d\n",list->count_procs);
+  printf("--------------------------\n");
 }
 
 void add_diff_count(Stop_list *list, pid_t pid, int num){
@@ -419,21 +458,50 @@ void add_diff_count(Stop_list *list, pid_t pid, int num){
   if (list == NULL){
     exit(EXIT_FAILURE);
   }
-  pt_previous=list->first;
-  
-  while(pt_previous->next!=NULL){
-    pt_previous=pt_previous->next;
+  if (num!=0){
+    pt_previous=list->first;
+    while(pt_previous->next!=NULL){
+      pt_previous=pt_previous->next;
+    }
+    Proc *process = malloc(sizeof(*process));
+    
+    pt_previous->next = process;
+    
+    process->next=NULL;
+    process->pid = pid;
+    process->time_added=time(NULL);
+    process->time_now=0;
+    
+    list->count_procs=num;
   }
-  Proc *process = malloc(sizeof(*process));
-  
-  pt_previous->next = process;
-
-  process->next=NULL;
-  process->pid = pid;
-  process->time_added=time(NULL);
-  process->time_now=0;
-
-  list->count_procs=num;
 }
-
 void pause_procs(Stop_list list);
+
+void black_listing(FILE *fp, Stop_list *list){
+  pid_t tmp;
+  int found = 0;
+  Proc *pt_process, *pt_previous;
+  fp = fopen(path_black_list_pid,"r");
+  
+  while (fscanf(fp, "%d", &tmp)>0){
+    
+    pt_process=list->first;
+    if (pt_process->pid == tmp){
+      found = 1;
+      list->first = pt_process->next;    
+      free(pt_process);
+    }
+    else{
+      while (pt_process!=NULL && found !=1){
+	if (pt_process->pid == tmp){
+	  found =1;
+	  pt_previous->next = pt_process->next;
+	  free(pt_process);
+	}
+	pt_previous = pt_process;
+	pt_process = pt_process->next;
+      }
+    }
+  }
+  fclose(fp);
+}

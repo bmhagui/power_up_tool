@@ -156,10 +156,10 @@ int main(int argc, char *argv[])
     perror("cannot open file open_windows.conf");
   }
   
-  stop_list = init_stop_list(fp); 
+  stop_list = init_stop_list(fp);
   affiche_stop_liste(stop_list);
-  printf("-----------------\n");
-  
+  //black_listing(flp, stop_list);
+ 
   while(1){
     i=0;
     length = read( fd, buffer, EVENT_BUF_LEN );
@@ -169,11 +169,17 @@ int main(int argc, char *argv[])
     
     while ( i < length ) {     struct inotify_event *event = ( struct inotify_event * ) &buffer[ i ];     if ( event->len ) {
 	if ( event->mask & IN_MODIFY ) {
-	  first_stop = time(NULL);
+	  first_stop=time(NULL);
+	  old_active_pid = new_active_pid;
+	  if (( pipe_wc = popen("xdotool getwindowfocus getwindowpid", "r")) == NULL)
+	    {
+	      perror("popen");
+	      exit(1);
+	    }
+	  fscanf(pipe_wc,"%d",&new_active_pid);
+	  pclose(pipe_wc);
+	  kill(new_active_pid, SIGCONT);
 	  
-	  system("kill -CONT `xdotool getwindowfocus getwindowpid`");	  
-	  //system("xdotool getwindowfocus getwindowpid > $XDG_RUNTIME_DIR/open_windows.conf");
-	  //system("wmctrl -l -p | cut -f4 -d' ' >> $XDG_RUNTIME_DIR/open_windows.conf"); 
 	  system("wmctrl -l -p | grep -v `xdotool getwindowfocus getwindowpid` | cut -f4 -d' ' | sort -u -b > $XDG_RUNTIME_DIR/open_windows.conf");
 
 	  //STOP
@@ -183,17 +189,20 @@ int main(int argc, char *argv[])
 	      exit(1);
 	    }
 	  fscanf(pipe_wc,"%d",&count);
+	  printf("COUNT %d\n",count);
 	  pclose(pipe_wc);
-	system("cat $XDG_RUNTIME_DIR/open_windows.conf");
-
-	  printf("count= %d\ncount_procs= %d\n",count,stop_list->count_procs);
-	  if (count==stop_list->count_procs){
-	    printf("same\n");
-	  }
-	  else{
-	    printf("Different!!!\n");
-	  }
 	  
+	  if (count != 0){
+	    if (count==stop_list->count_procs){
+	      add_equal_count(stop_list, new_active_pid, old_active_pid);
+	      affiche_stop_liste(stop_list);
+	    }
+	    else{
+	      add_diff_count(stop_list, old_active_pid, count);
+	      //black_listing(flp, stop_list);
+	      affiche_stop_liste(stop_list);
+	    }
+	  }
 	  //STOP LIST
 	  system("bash ~/.config/power_up/get_pid.sh");
 	  delete_list(black_list);
@@ -201,7 +210,6 @@ int main(int argc, char *argv[])
 	  create_list(path_black_list_pid,black_list);
 	  create_list(path_refresh_list_pid,refresh_list);
 	  
-	  //fscanf(fp, "%d", &active_pid);
 	  while( !feof(fp)) {
 	    fscanf(fp, "%d", &pid); 
 	    if ( !member(pid,black_list) ){
@@ -214,7 +222,7 @@ int main(int argc, char *argv[])
 		printf("%d Paused\n",pid);
 	      }
 	    }
-	  }
+	  }//feof(fp) while
 	}
       }
       i += EVENT_SIZE + event->len;
