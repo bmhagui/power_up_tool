@@ -6,9 +6,9 @@ int main(int argc, char *argv[])
   sigaction(SIGINT,&action,NULL);
   sigaction(SIGTERM,&action,NULL);
   check_paths();
-  int length, i = 0, opt= 0, long_index =0, exists =0, verbose=0, STOP_AFTER_S=0, REFRESH_RATE_S=0, count=0;
+  int length, i = 0, opt= 0, long_index =0, exists =0, STOP_AFTER_S=0, REFRESH_RATE_S=0, count=0;
   char buffer[EVENT_BUF_LEN];
-  time_t first_refresh, second_refresh, first_stop, second_stop;
+  time_t first_refresh, second_refresh, second_stop;
 
   static struct option long_options[] = {
     {"help",                no_argument, 0,  'h' },
@@ -96,7 +96,7 @@ int main(int argc, char *argv[])
       fclose(fp);
       exit(0);
     case 'v' :
-      verbose=1;
+      //verbose=1;
       break;
     default:
       printf("\nInvalid argument. Refer to --help or -h for valid options.\n");
@@ -157,7 +157,7 @@ int main(int argc, char *argv[])
   }
   
   stop_list = init_stop_list(fp);
-  affiche_stop_liste(stop_list);
+  //affiche_stop_liste(stop_list);
   //black_listing(flp, stop_list);
  
   while(1){
@@ -169,7 +169,6 @@ int main(int argc, char *argv[])
     
     while ( i < length ) {     struct inotify_event *event = ( struct inotify_event * ) &buffer[ i ];     if ( event->len ) {
 	if ( event->mask & IN_MODIFY ) {
-	  first_stop=time(NULL);
 	  old_active_pid = new_active_pid;
 	  if (( pipe_wc = popen("xdotool getwindowfocus getwindowpid", "r")) == NULL)
 	    {
@@ -189,18 +188,15 @@ int main(int argc, char *argv[])
 	      exit(1);
 	    }
 	  fscanf(pipe_wc,"%d",&count);
-	  printf("COUNT %d\n",count);
 	  pclose(pipe_wc);
 	  
 	  if (count != 0){
 	    if (count==stop_list->count_procs){
 	      add_equal_count(stop_list, new_active_pid, old_active_pid);
-	      affiche_stop_liste(stop_list);
 	    }
 	    else{
 	      add_diff_count(stop_list, old_active_pid, count);
 	      //black_listing(flp, stop_list);
-	      affiche_stop_liste(stop_list);
 	    }
 	  }
 	  //STOP LIST
@@ -209,30 +205,28 @@ int main(int argc, char *argv[])
 	  delete_list(refresh_list);
 	  create_list(path_black_list_pid,black_list);
 	  create_list(path_refresh_list_pid,refresh_list);
-	  
-	  while( !feof(fp)) {
-	    fscanf(fp, "%d", &pid); 
-	    if ( !member(pid,black_list) ){
+
+	  //affiche_stop_liste(stop_list);
+	  Proc *tmp=stop_list->first;
+	  while(tmp != NULL){
+	    if ( !member(tmp->pid,black_list) ){
 	      second_stop=time(NULL);
-	      while (second_stop-first_stop < STOP_AFTER_S){
-		second_stop=time(NULL);
-	      }
-	      kill(pid, SIGSTOP);
-	      if(verbose ==1){
-		printf("%d Paused\n",pid);
+	      if (second_stop-tmp->time_added >= STOP_AFTER_S){
+		kill(tmp->pid, SIGSTOP);
 	      }
 	    }
-	  }//feof(fp) while
+	    tmp=tmp->next;
+	  }	  
 	}
+	i += EVENT_SIZE + event->len;
       }
-      i += EVENT_SIZE + event->len;
-    }
-    rewind(fp);
-    second_refresh = time(NULL);
-    if (second_refresh-first_refresh >= REFRESH_RATE_S){
-      //printf("Waking up chosen processes\n");
-      activate_list(refresh_list);
-      first_refresh = time(NULL);
+      rewind(fp);
+      second_refresh = time(NULL);
+      if (second_refresh-first_refresh >= REFRESH_RATE_S){
+	//printf("Waking up chosen processes\n");
+	activate_list(refresh_list);
+	first_refresh = time(NULL);
+      }
     }
   }
 }
