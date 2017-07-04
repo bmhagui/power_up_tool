@@ -59,7 +59,7 @@ struct sigaction action;
 Liste *black_list, *refresh_list;
 Stop_list *stop_list;
 
-char path_black_list[100], path_black_list_pid[100],
+char path_black_list[100], path_black_list_pid[100], verbose[100],
   path_refresh_list[100], path_refresh_list_pid[100], path_config_powerup[100],
   path_open_windows[100], path_window_change[100], path_notif[100], path_time[100],
   app_name[100], read_name[100], path_runtime_dir[100], get_pid_command[100], tmp[100];

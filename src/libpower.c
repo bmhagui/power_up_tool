@@ -167,18 +167,13 @@ void check_paths(void) {
 	perror("mkdir error notif");
       }
     }
-    else{
-      
+    else{ 
       perror("opendir error:");
     }
   }
   else{
-    printf("Config folder in place.\n");
     closedir(dir);
   }
-  
-  printf("Checking config files and creating them if needed.\n");
-  //get_pid.sh find
 
   sprintf(tmp,"%d",getpid());
   strcpy(get_pid_command,"stat /proc/");
@@ -192,10 +187,9 @@ void check_paths(void) {
     }
   fscanf(pipe_popen,"%s",tmp);
   pclose(pipe_popen);
-  strcpy(get_pid_command, "cp -uv ");
+  strcpy(get_pid_command, "cp -u ");
   strcat(get_pid_command,tmp);
   strcat(get_pid_command,"bin/get_pid.sh ~/.config/power_up\n");
-  //printf("%s\n",get_pid_command);
   system(get_pid_command);
   
   //system cp
@@ -227,7 +221,6 @@ void check_paths(void) {
   if( check != NULL){
     fclose(check);
   }
-  printf("--Checking Paths and Files: Done--\n\n");
 }
 
 Liste_toggle *init_toggle(void){

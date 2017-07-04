@@ -9,6 +9,7 @@ int main(int argc, char *argv[])
   int length, i = 0, opt= 0, long_index =0, exists =0, STOP_AFTER_S=0, REFRESH_RATE_S=0, count=0;
   char buffer[EVENT_BUF_LEN];
   time_t first_refresh, second_refresh, second_stop;
+  bool verbose_bool = false;
 
   static struct option long_options[] = {
     {"help",                no_argument, 0,  'h' },
@@ -96,7 +97,7 @@ int main(int argc, char *argv[])
       fclose(fp);
       exit(0);
     case 'v' :
-      //verbose=1;
+      verbose_bool=true;
       break;
     default:
       printf("\nInvalid argument. Refer to --help or -h for valid options.\n");
@@ -109,18 +110,13 @@ int main(int argc, char *argv[])
     perror("fopen");
     exit(1);
   }
-  
   if (fscanf(fp,"%d",&STOP_AFTER_S)!=EOF){
     fscanf(fp,"%d",&REFRESH_RATE_S);
   }
-  else
-    {
+  else{
       STOP_AFTER_S=1;
       REFRESH_RATE_S=5;
     }
-
-  //printf("%d\n\n\n",STOP_AFTER_S);
-  //printf("%d\n\n\n",REFRESH_RATE_S);
   fclose(fp);
   
   running_check();
@@ -132,19 +128,14 @@ int main(int argc, char *argv[])
     }
   
   first_refresh = time(NULL);
-  printf("\nLaunched power_up.\n");
-  
-  //system("bash ~/.config/power_up/get_pid.sh");
+  printf("--Launched power_up.--\n\n");  
   black_list = initialisation();
-  //create_list(path_black_list_pid,black_list);
   refresh_list = initialisation();
-  //create_list(path_refresh_list_pid,refresh_list);
   
   fd = inotify_init();
   if ( fd < 0 ) {
     perror( "inotify_init" );
   }
-  
   wd = inotify_add_watch( fd, path_notif, IN_MODIFY); 
 
   //Stop_list
@@ -178,12 +169,15 @@ int main(int argc, char *argv[])
 	  fscanf(pipe_wc,"%d",&new_active_pid);
 	  pclose(pipe_wc);
 	  kill(new_active_pid, SIGCONT);
-	  
+	  if (verbose_bool){
+	    sprintf(verbose,"ps -e | grep %d | awk '{print $4}'",new_active_pid);
+	    system(verbose);
+	    printf("is active.\n\n");
+	  }
 	  system("wmctrl -l -p | grep -v `xdotool getwindowfocus getwindowpid` | cut -f4 -d' ' | sort -u -b > $XDG_RUNTIME_DIR/open_windows.conf");
 
 	  //STOP
-	  if (( pipe_wc = popen("grep -cve '^\\s*$' $XDG_RUNTIME_DIR/open_windows.conf", "r")) == NULL)
-	    {
+	  if (( pipe_wc = popen("grep -cve '^\\s*$' $XDG_RUNTIME_DIR/open_windows.conf", "r")) == NULL){
 	      perror("popen");
 	      exit(1);
 	    }
@@ -212,6 +206,11 @@ int main(int argc, char *argv[])
 	    if ( !member(tmp->pid,black_list) ){
 	      second_stop=time(NULL);
 	      if (second_stop-tmp->time_added >= STOP_AFTER_S){
+		if (verbose_bool){
+		  sprintf(verbose,"ps -e | grep %d | awk '{print $4}'",tmp->pid);
+		  system(verbose);
+		  printf("has been paused\n\n");
+		}
 		kill(tmp->pid, SIGSTOP);
 	      }
 	    }
