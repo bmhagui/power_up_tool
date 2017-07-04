@@ -31,14 +31,25 @@ void hand(int sig)
   }
 }
 
-void activate_list(Liste *liste){
-  if (liste == NULL){
+void activate_list(Liste *liste, Stop_list *list){
+  if (liste == NULL || list == NULL){
     exit(EXIT_FAILURE);
   }
-  Element *actuel = liste->first;
-  while (actuel != NULL){
-    kill(actuel->pid,SIGCONT);
-    actuel = actuel->next;
+  if (liste->first != NULL){
+    Element *actuel = liste->first;
+    Proc *process;
+    
+    while (actuel != NULL){
+      kill(actuel->pid,SIGCONT);
+      process = list->first;
+      while( (process->pid != actuel->pid) && process!=NULL){
+	process = process->next;
+      }
+      if (process->pid == actuel->pid){
+	process->paused=false;
+      }
+      actuel = actuel->next;
+    }
   }
 }
 
@@ -199,6 +210,10 @@ void check_paths(void) {
   
   //system cp
   check = fopen(path_time,"a+");
+  if(fscanf(check,"%s",tmp)<=0){
+    fprintf(check,"STOP_AFTER_S 0\nREFRESH_RATE_S 60\n");
+    printf("EMPTY\n");
+  }
   if( check != NULL){
     fclose(check);
   }

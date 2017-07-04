@@ -91,10 +91,10 @@ int main(int argc, char *argv[])
       
       printf("After how many seconds would you like to pause your applications?\n");
       scanf("%d",&i);
-      fprintf(fp,"%d\n",i);
+      fprintf(fp,"STOP_AFTER_S %d\n",i);
       printf("At what frequencey would you like to refresh your refresh-list applications?\n");
       scanf("%d",&i);
-      fprintf(fp,"%d\n",i);
+      fprintf(fp,"REFRESH_RATE_S %d\n",i);
       fclose(fp);
       exit(0);
     case 'v' :
@@ -111,12 +111,11 @@ int main(int argc, char *argv[])
     perror("fopen");
     exit(1);
   }
-  if (fscanf(fp,"%d",&STOP_AFTER_S)!=EOF){
-    fscanf(fp,"%d",&REFRESH_RATE_S);
+  if (fscanf(fp,"%*s %d",&STOP_AFTER_S)!=EOF){
+    fscanf(fp,"%*s %d",&REFRESH_RATE_S);
   }
   else{
-      STOP_AFTER_S=1;
-      REFRESH_RATE_S=5;
+    perror("time.conf is empty");
     }
   fclose(fp);
   
@@ -224,8 +223,7 @@ int main(int argc, char *argv[])
       rewind(fp);
       second_refresh = time(NULL);
       if (second_refresh-first_refresh >= REFRESH_RATE_S){
-	//printf("Waking up chosen processes\n");
-	activate_list(refresh_list);
+	activate_list(refresh_list, stop_list);
 	first_refresh = time(NULL);
       }
     }

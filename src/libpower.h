@@ -75,7 +75,7 @@ void activate_all(void);
 
 void hand(int sig);
 
-void activate_list(Liste *liste);
+void activate_list(Liste *liste, Stop_list *list);
 
 Liste *initialisation(void);
 
