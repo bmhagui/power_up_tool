@@ -72,7 +72,7 @@ int main(int argc, char *argv[])
       exit(0);
     case 'l' :
       printf("Below is a list of currently active applications and their respective PIDS.\n\nPID\tName\n");
-      system("wmctrl -l -p | cut -f4 -d' '> $XDG_RUNTIME_DIR/open_windows.conf");
+      system("wmctrl -l -p | awk '{print $2,$3}' | grep -v - | awk '{print $2}'> $XDG_RUNTIME_DIR/open_windows.conf");
       system("ps -e | grep -f $XDG_RUNTIME_DIR/open_windows.conf | awk '{print $1,$4}'");      
       exit(0);
     case 't' :
@@ -139,7 +139,7 @@ int main(int argc, char *argv[])
   wd = inotify_add_watch( fd, path_notif, IN_MODIFY); 
 
   //Stop_list
-  system("wmctrl -l -p | grep -v `xdotool getwindowfocus getwindowpid` | cut -f4 -d' ' | sort -u -b > $XDG_RUNTIME_DIR/open_windows.conf");
+  system("wmctrl -l -p | grep -v `xdotool getwindowfocus getwindowpid` | awk '{print $2,$3}' | grep -v - | awk '{print $2}' | sort -u -b > $XDG_RUNTIME_DIR/open_windows.conf");
   //Stop_list
 
   fp = fopen(path_open_windows,"r");
@@ -174,7 +174,7 @@ int main(int argc, char *argv[])
 	    system(verbose);
 	    printf("is active.\n\n");
 	  }
-	  system("wmctrl -l -p | grep -v `xdotool getwindowfocus getwindowpid` | cut -f4 -d' ' | sort -u -b > $XDG_RUNTIME_DIR/open_windows.conf");
+	  system("wmctrl -l -p | grep -v `xdotool getwindowfocus getwindowpid` | awk '{print $2,$3}' | grep -v - | awk '{print $2}' | sort -u -b > $XDG_RUNTIME_DIR/open_windows.conf");
 
 	  //STOP
 	  if (( pipe_wc = popen("grep -cve '^\\s*$' $XDG_RUNTIME_DIR/open_windows.conf", "r")) == NULL){
