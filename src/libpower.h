@@ -44,7 +44,7 @@ typedef struct Proc Proc;
 struct Proc{
   pid_t pid;
   time_t time_added;
-  time_t time_now;
+  bool paused;
   Proc *next;
 };
 
@@ -113,6 +113,6 @@ void affiche_stop_liste(Stop_list *list);
 
 void add_diff_count(Stop_list *list, pid_t pid, int num);
 
-void pause_procs(Stop_list list);
+void delete_stop_list(Stop_list *list);
 
 void black_listing(FILE *fp, Stop_list *list);

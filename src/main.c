@@ -77,6 +77,7 @@ int main(int argc, char *argv[])
       exit(0);
     case 't' :
       toggle(exists);
+      exit(0);
     case 'w' :
       i = strtol(optarg, NULL, 10);
       system("pkill -SIGINT power_up");
@@ -205,13 +206,14 @@ int main(int argc, char *argv[])
 	  while(tmp != NULL){
 	    if ( !member(tmp->pid,black_list) ){
 	      second_stop=time(NULL);
-	      if (second_stop-tmp->time_added >= STOP_AFTER_S){
+	      if (second_stop-tmp->time_added >= STOP_AFTER_S && !(tmp->paused)){
 		if (verbose_bool){
 		  sprintf(verbose,"ps -e | grep %d | awk '{print $4}'",tmp->pid);
 		  system(verbose);
 		  printf("has been paused\n\n");
 		}
 		kill(tmp->pid, SIGSTOP);
+		tmp->paused=true;
 	      }
 	    }
 	    tmp=tmp->next;

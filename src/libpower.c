@@ -16,7 +16,7 @@ void hand(int sig)
     inotify_rm_watch( fd, wd );
     close(fd);
     fclose(fp);
-
+    delete_stop_list(stop_list);
     delete_list(black_list);
     delete_list(refresh_list);
     free(black_list);
@@ -159,7 +159,7 @@ void check_paths(void) {
   if (dir == NULL){
     /* Error */
     if (ENOENT == errno){
-      printf("Config folder missing, creating now.\n"); 
+      //printf("Config folder missing, creating now.\n"); 
       if (mkdir(path_config_powerup, 00700) < 0){
 	perror("mkdir error config_powerup");
       }
@@ -175,10 +175,13 @@ void check_paths(void) {
     closedir(dir);
   }
 
-  sprintf(tmp,"%d",getpid());
+  /*sprintf(tmp,"%d",getpid());
   strcpy(get_pid_command,"stat /proc/");
   strcat(get_pid_command,tmp);
-  strcat(get_pid_command,"/exe | grep /home/ | sed 's/.*File.*-> //' | sed 's/[a-z]*_[a-z]*$//'");
+  strcat(get_pid_command,"/exe | grep /home/ | sed 's/.*-> //' | sed 's/[a-z]*_[a-z]*$//'");*/
+  pid=getpid();
+  sprintf(get_pid_command,"stat /proc/%d/exe | grep /home/ | sed 's/.*-> //' | sed 's/[a-z]*_[a-z]*$//'",pid);
+  //printf("%s\n",get_pid_command);
   
   if (( pipe_popen = popen(get_pid_command, "r")) == NULL)
     {
@@ -187,9 +190,11 @@ void check_paths(void) {
     }
   fscanf(pipe_popen,"%s",tmp);
   pclose(pipe_popen);
-  strcpy(get_pid_command, "cp -u ");
+  /*strcpy(get_pid_command, "cp -u ");
   strcat(get_pid_command,tmp);
-  strcat(get_pid_command,"bin/get_pid.sh ~/.config/power_up\n");
+  strcat(get_pid_command,"bin/get_pid.sh ~/.config/power_up\n");*/
+  sprintf(get_pid_command,"cp -u %sbin/get_pid.sh ~/.config/power_up",tmp);
+  //printf("%s\n",get_pid_command);
   system(get_pid_command);
   
   //system cp
@@ -314,7 +319,6 @@ void toggle(int exists){
 	rewrite_file(maListe,check);
       }
       delete_toggle(maListe);
-      exit(0);
 }
 
 void running_check(void){
@@ -362,43 +366,13 @@ Stop_list *init_stop_list(FILE *fp){
     list->first = process;
     process->pid = tmp;
     process->time_added=time(NULL);
-    process->time_now=0;
+    process->paused=false;
     i++;
   }
   list->count_procs=i;
   return list;
 }
 
-/*void add_equal_count(Stop_list *list, pid_t new_active_pid, pid_t old_active_pid){
-  Proc *pt_process;
-  Proc *pt_previous;
-  if (list == NULL){
-    exit(EXIT_FAILURE);
-  }
-  if (old_active_pid != 0){
-    pt_process=list->first;
-    while (pt_process->pid != new_active_pid && pt_process->next!=NULL){
-      printf("once\n");
-      pt_previous = pt_process;
-      pt_process = pt_process->next;
-    } 
-    
-    pt_previous->next = pt_process->next;
-    free(pt_process);
-    
-    while(pt_previous->next!=NULL){
-      pt_previous=pt_previous->next;
-    }
-    Proc *process = malloc(sizeof(*process));
-    
-    pt_previous->next = process;
-    
-    process->next=NULL;
-    process->pid = old_active_pid;
-    process->time_added=time(NULL);
-    process->time_now=0;
-  }
-}*/
 void add_equal_count(Stop_list *list, pid_t new_active_pid, pid_t old_active_pid){
   Proc *pt_process;
   Proc *pt_previous;
@@ -432,7 +406,7 @@ void add_equal_count(Stop_list *list, pid_t new_active_pid, pid_t old_active_pid
     process->next=NULL;
     process->pid = old_active_pid;
     process->time_added=time(NULL);
-    process->time_now=0;
+    process->paused=false;
   }
 }
 
@@ -453,7 +427,6 @@ void add_diff_count(Stop_list *list, pid_t pid, int num){
   }
   if (num!=0){
     if (num<list->count_procs){
-      printf("less\n");
       while (list->first != NULL){
         Proc *aSupprimer = list->first;
         list->first = list->first->next;
@@ -473,13 +446,23 @@ void add_diff_count(Stop_list *list, pid_t pid, int num){
       process->next=NULL;
       process->pid = pid;
       process->time_added=time(NULL);
-      process->time_now=0;
+      process->paused=false;
       
       list->count_procs=num;
     }
   }
 }
-void pause_procs(Stop_list list);
+void delete_stop_list(Stop_list *list){
+      if (list == NULL){
+        exit(EXIT_FAILURE);
+    }
+    while (list->first != NULL){
+        Proc *aSupprimer = list->first;
+        list->first = list->first->next;
+        free(aSupprimer);
+    }
+    free(list);
+}
 
 void black_listing(FILE *fp, Stop_list *list){
   pid_t tmp;
