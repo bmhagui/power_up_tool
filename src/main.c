@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
 	}
       }
       else{
-	if (( pipe_popen = popen("ps -e | grep `xprop _NET_WM_PID | cut -f3 -d' '` | sed -e 's/[0-9]*//' | sed -e 's/\\ .*\\ //'", "r")) == NULL)
+	if (( pipe_popen = popen("ps -e | grep `xprop _NET_WM_PID | awk '{print $3}'` | awk '{print $4}'", "r")) == NULL)
 	  {
 	    perror("popen");
 	    exit(1);
@@ -46,6 +46,7 @@ int main(int argc, char *argv[])
 	pclose(pipe_popen);
 	check=fopen(path_refresh_list,"a+");
 	add_to_list(app_name,check,exists);
+	fclose(check);
       }
       exit(0);
     case 'b' :
@@ -56,7 +57,7 @@ int main(int argc, char *argv[])
 	}
       }
       else{
-	if (( pipe_popen = popen("ps -e | grep `xprop _NET_WM_PID | cut -f3 -d' '` | sed -e 's/[0-9]*//' | sed -e 's/\\ .*\\ //'", "r")) == NULL)
+	if (( pipe_popen = popen("ps -e | grep `xprop _NET_WM_PID | awk '{print $3}'` | awk '{print $4}'", "r")) == NULL)
 	  {
 	    perror("popen");
 	    exit(1);
@@ -65,6 +66,7 @@ int main(int argc, char *argv[])
 	pclose(pipe_popen);
 	check=fopen(path_black_list,"a+");
 	add_to_list(app_name,check,exists);
+	fclose(check);
       }
       exit(0);
     case 'k' :
@@ -205,7 +207,7 @@ int main(int argc, char *argv[])
 	  while(tmp != NULL){
 	    if ( !member(tmp->pid,black_list) ){
 	      second_stop=time(NULL);
-	      if (second_stop-tmp->time_added >= STOP_AFTER_S && !(tmp->paused)){
+	      if (second_stop-tmp->time_added >= STOP_AFTER_S && !(tmp->paused) && tmp != NULL){
 		if (verbose_bool){
 		  sprintf(verbose,"ps -e | grep %d | awk '{print $4}'",tmp->pid);
 		  system(verbose);

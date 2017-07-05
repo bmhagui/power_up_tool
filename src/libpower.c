@@ -45,7 +45,7 @@ void activate_list(Liste *liste, Stop_list *list){
       while( (process->pid != actuel->pid) && process!=NULL){
 	process = process->next;
       }
-      if (process->pid == actuel->pid){
+      if (process!=NULL && process->pid == actuel->pid){
 	process->paused=false;
       }
       actuel = actuel->next;
