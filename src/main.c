@@ -207,7 +207,7 @@ int main(int argc, char *argv[])
 	  while(tmp != NULL){
 	    if ( !member(tmp->pid,black_list) ){
 	      second_stop=time(NULL);
-	      if (second_stop-tmp->time_added >= STOP_AFTER_S && !(tmp->paused) && tmp != NULL){
+	      if (second_stop-tmp->time_added >= STOP_AFTER_S && !(tmp->paused)){
 		if (verbose_bool){
 		  sprintf(verbose,"ps -e | grep %d | awk '{print $4}'",tmp->pid);
 		  system(verbose);

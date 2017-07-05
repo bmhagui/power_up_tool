@@ -40,12 +40,12 @@ void activate_list(Liste *liste, Stop_list *list){
     Proc *process;
     
     while (actuel != NULL){
-      kill(actuel->pid,SIGCONT);
       process = list->first;
-      while( (process->pid != actuel->pid) && process!=NULL){
+      while( (process!=NULL && process->pid != actuel->pid)){
 	process = process->next;
       }
       if (process!=NULL && process->pid == actuel->pid){
+	kill(actuel->pid,SIGCONT);
 	process->paused=false;
       }
       actuel = actuel->next;
