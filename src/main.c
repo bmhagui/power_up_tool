@@ -8,7 +8,7 @@ int main(int argc, char *argv[])
   check_paths();
   int length, i = 0, opt= 0, long_index =0, exists =0, STOP_AFTER_S=0, REFRESH_RATE_S=0, count=0;
   char buffer[EVENT_BUF_LEN];
-  time_t first_refresh, second_refresh, second_stop;
+  time_t second_stop;
   bool verbose_bool = false;
 
   static struct option long_options[] = {
@@ -123,36 +123,21 @@ int main(int argc, char *argv[])
   
   running_check();
   
-  if (( pipe_popen = popen("xprop -root -spy _NET_ACTIVE_WINDOW | mawk -W interactive '{print $5}' > ~/.config/power_up/notif/window_change.conf", "w")) == NULL)
-    {
-      perror("popen");
-      exit(1);
-    }
-  
-  first_refresh = time(NULL);
-  printf("--Launched power_up.--\n\n");  
-  black_list = initialisation();
-  refresh_list = initialisation();
+  if (( pipe_popen = popen("xprop -root -spy _NET_ACTIVE_WINDOW | mawk -W interactive '{print $5}' > ~/.config/power_up/notif/window_change.conf", "w")) == NULL){
+    perror("popen");
+    exit(1);
+  }
   
   fd = inotify_init();
   if ( fd < 0 ) {
     perror( "inotify_init" );
   }
-  wd = inotify_add_watch( fd, path_notif, IN_MODIFY); 
-
-  //Stop_list
-  system("wmctrl -l -p | grep -v `xdotool getwindowfocus getwindowpid` | awk '{print $2,$3}' | grep -v - | awk '{print $2}' | sort -u -b > $XDG_RUNTIME_DIR/open_windows.conf");
-  //Stop_list
-
-  fp = fopen(path_open_windows,"r");
-  if(fp==NULL){
-    perror("cannot open file open_windows.conf");
-  }
+  wd = inotify_add_watch( fd, path_notif, IN_MODIFY);
   
-  stop_list = init_stop_list(fp);
-  //affiche_stop_liste(stop_list);
-  //black_listing(flp, stop_list);
- 
+  printf("--Launched power_up.--\n\n");
+  
+  stop_list = init_stop_list();
+  affiche_stop_liste(stop_list);
   while(1){
     i=0;
     length = read( fd, buffer, EVENT_BUF_LEN );
@@ -163,11 +148,10 @@ int main(int argc, char *argv[])
     while ( i < length ) {     struct inotify_event *event = ( struct inotify_event * ) &buffer[ i ];     if ( event->len ) {
 	if ( event->mask & IN_MODIFY ) {
 	  old_active_pid = new_active_pid;
-	  if (( pipe_wc = popen("xdotool getwindowfocus getwindowpid", "r")) == NULL)
-	    {
-	      perror("popen");
-	      exit(1);
-	    }
+	  if (( pipe_wc = popen("xdotool getwindowfocus getwindowpid", "r")) == NULL){
+	    perror("popen");
+	    exit(1);
+	  }
 	  fscanf(pipe_wc,"%d",&new_active_pid);
 	  pclose(pipe_wc);
 	  kill(new_active_pid, SIGCONT);
@@ -176,58 +160,50 @@ int main(int argc, char *argv[])
 	    system(verbose);
 	    printf("is active.\n\n");
 	  }
-	  system("wmctrl -l -p | grep -v `xdotool getwindowfocus getwindowpid` | awk '{print $2,$3}' | grep -v - | awk '{print $2}' | sort -u -b > $XDG_RUNTIME_DIR/open_windows.conf");
-
+	  
+	  system("bash ~/.config/power_up/get_pid.sh");
+	  system("wmctrl -l -p | grep -v `xdotool getwindowfocus getwindowpid` | grep -vf $XDG_RUNTIME_DIR/black_list_pid.conf | grep -vf $XDG_RUNTIME_DIR/refresh_list_pid.conf | awk '{print $2,$3}' | grep -v - | awk '{print $2}' | sort -u -b > $XDG_RUNTIME_DIR/open_windows.conf");
+	  
 	  //STOP
 	  if (( pipe_wc = popen("grep -cve '^\\s*$' $XDG_RUNTIME_DIR/open_windows.conf", "r")) == NULL){
-	      perror("popen");
-	      exit(1);
-	    }
+	    perror("popen");
+	    exit(1);
+	  }
 	  fscanf(pipe_wc,"%d",&count);
 	  pclose(pipe_wc);
 	  
 	  if (count != 0){
 	    if (count==stop_list->count_procs){
 	      add_equal_count(stop_list, new_active_pid, old_active_pid);
+	      /*printf("SAME\n");
+		affiche_stop_liste(stop_list);*/
 	    }
 	    else{
-	      add_diff_count(stop_list, old_active_pid, count);
-	      //black_listing(flp, stop_list);
+	      add_diff_count(stop_list, fp);
+	      /*printf("DIFFERENT\n");
+		affiche_stop_liste(stop_list);*/
 	    }
 	  }
-	  //STOP LIST
-	  system("bash ~/.config/power_up/get_pid.sh");
-	  delete_list(black_list);
-	  delete_list(refresh_list);
-	  create_list(path_black_list_pid,black_list);
-	  create_list(path_refresh_list_pid,refresh_list);
-
-	  //affiche_stop_liste(stop_list);
+	  
+	  affiche_stop_liste(stop_list);
 	  Proc *tmp=stop_list->first;
 	  while(tmp != NULL){
-	    if ( !member(tmp->pid,black_list) ){
-	      second_stop=time(NULL);
-	      if (second_stop-tmp->time_added >= STOP_AFTER_S && !(tmp->paused)){
-		if (verbose_bool){
-		  sprintf(verbose,"ps -e | grep %d | awk '{print $4}'",tmp->pid);
-		  system(verbose);
-		  printf("has been paused\n\n");
-		}
-		kill(tmp->pid, SIGSTOP);
-		tmp->paused=true;
+	    second_stop=time(NULL);
+	    if (second_stop-tmp->time_added >= STOP_AFTER_S && !(tmp->paused)){
+	      if (verbose_bool){
+		sprintf(verbose,"ps -e | grep %d | awk '{print $4}'",tmp->pid);
+		system(verbose);
+		printf("has been paused\n\n");
 	      }
+	      kill(tmp->pid, SIGSTOP);
+	      tmp->paused=true;
 	    }
 	    tmp=tmp->next;
-	  }	  
+	  }//while(tmp != NULL)	  
 	}
 	i += EVENT_SIZE + event->len;
       }
       rewind(fp);
-      second_refresh = time(NULL);
-      if (second_refresh-first_refresh >= REFRESH_RATE_S){
-	activate_list(refresh_list, stop_list);
-	first_refresh = time(NULL);
-      }
     }
   }
 }

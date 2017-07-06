@@ -105,13 +105,13 @@ void running_check(void);
 
 void add_to_list(char * app_name, FILE *fp, int exists);
 
-Stop_list *init_stop_list(FILE *fp);
+Stop_list *init_stop_list();
 
 void add_equal_count(Stop_list *list, pid_t new_active_pid, pid_t old_active_pid);
 
 void affiche_stop_liste(Stop_list *list);
 
-void add_diff_count(Stop_list *list, pid_t pid, int num);
+void add_diff_count(Stop_list *list, FILE *fp);
 
 void delete_stop_list(Stop_list *list);
 
