@@ -137,7 +137,6 @@ int main(int argc, char *argv[])
   printf("--Launched power_up.--\n\n");
   
   stop_list = init_stop_list();
-  affiche_stop_liste(stop_list);
   while(1){
     i=0;
     length = read( fd, buffer, EVENT_BUF_LEN );
@@ -162,7 +161,7 @@ int main(int argc, char *argv[])
 	  }
 	  
 	  system("bash ~/.config/power_up/get_pid.sh");
-	  system("wmctrl -l -p | grep -v `xdotool getwindowfocus getwindowpid` | grep -vf $XDG_RUNTIME_DIR/black_list_pid.conf | grep -vf $XDG_RUNTIME_DIR/refresh_list_pid.conf | awk '{print $2,$3}' | grep -v - | awk '{print $2}' | sort -u -b > $XDG_RUNTIME_DIR/open_windows.conf");
+	  system("wmctrl -l -p | grep -vf $XDG_RUNTIME_DIR/black_list_pid.conf | grep -vf $XDG_RUNTIME_DIR/refresh_list_pid.conf | awk '{print $2,$3}' | grep -v - | awk '{print $2}' | sort -u -b > $XDG_RUNTIME_DIR/open_windows.conf");
 	  
 	  //STOP
 	  if (( pipe_wc = popen("grep -cve '^\\s*$' $XDG_RUNTIME_DIR/open_windows.conf", "r")) == NULL){
@@ -175,13 +174,11 @@ int main(int argc, char *argv[])
 	  if (count != 0){
 	    if (count==stop_list->count_procs){
 	      add_equal_count(stop_list, new_active_pid, old_active_pid);
-	      /*printf("SAME\n");
-		affiche_stop_liste(stop_list);*/
+	      //printf("SAME\n");
 	    }
 	    else{
 	      add_diff_count(stop_list, fp);
-	      /*printf("DIFFERENT\n");
-		affiche_stop_liste(stop_list);*/
+	      //printf("DIFFERENT\n");
 	    }
 	  }
 	  
@@ -189,7 +186,8 @@ int main(int argc, char *argv[])
 	  Proc *tmp=stop_list->first;
 	  while(tmp != NULL){
 	    second_stop=time(NULL);
-	    if (second_stop-tmp->time_added >= STOP_AFTER_S && !(tmp->paused)){
+	    printf("PID TO BE STOPPED: %d\n",tmp->pid);
+	    if (second_stop-tmp->time_added >= STOP_AFTER_S && tmp->pid!=new_active_pid && !(tmp->paused)){
 	      if (verbose_bool){
 		sprintf(verbose,"ps -e | grep %d | awk '{print $4}'",tmp->pid);
 		system(verbose);

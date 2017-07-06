@@ -398,38 +398,18 @@ Stop_list *init_stop_list(FILE *fp){
 
 void add_equal_count(Stop_list *list, pid_t new_active_pid, pid_t old_active_pid){
   Proc *pt_process;
-  Proc *pt_previous;
   if (list == NULL){
     exit(EXIT_FAILURE);
   }
   if (old_active_pid != 0 && new_active_pid!=old_active_pid){
     pt_process=list->first;
-    if (pt_process->pid == new_active_pid){
-      list->first = pt_process->next;
-      free(pt_process);
-    }
-    else{
-      while (pt_process->pid != new_active_pid && pt_process->next!=NULL){
-	pt_previous = pt_process;
-	pt_process = pt_process->next;
-      }
-      pt_previous->next = pt_process->next;
-      free(pt_process);
-    }
-
-    pt_previous=list->first;
-
-    while(pt_previous->next!=NULL){
-      pt_previous=pt_previous->next;
-    }
-    Proc *process = malloc(sizeof(*process));
-    
-    pt_previous->next = process;
-    
-    process->next=NULL;
-    process->pid = old_active_pid;
-    process->time_added=time(NULL);
-    process->paused=false;
+    while (pt_process->pid != new_active_pid && pt_process->next!=NULL){
+      pt_process = pt_process->next;
+    } 
+  } 
+  if (pt_process != NULL && pt_process->pid == new_active_pid){
+    pt_process->pid = old_active_pid;
+    pt_process->paused=false;
   }
 }
 
