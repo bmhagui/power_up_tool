@@ -1,11 +1,14 @@
 #include "libpower.h"
 
 void activate_all(void){
-  rewind(fp);
-  while( !feof(fp)) {
-    fscanf(fp, "%d", &pid);
+  fp = fopen(path_open_windows,"r");
+  if(fp==NULL){
+    perror("cannot open file open_windows.conf");
+  }
+  while(fscanf(fp, "%d", &pid)>0) {
     kill(pid, SIGCONT);
   }
+  fclose(fp);
 }
 
 void hand(int sig)
@@ -15,13 +18,7 @@ void hand(int sig)
     activate_all();
     inotify_rm_watch( fd, wd );
     close(fd);
-    fclose(fp);
-    delete_stop_list(stop_list);
-    delete_list(black_list);
-    delete_list(refresh_list);
-    free(black_list);
-    free(refresh_list);
-    
+    //fclose(fp);
     system("pkill -SIGTERM xprop");
     exit(0);
   }
@@ -366,7 +363,7 @@ void add_to_list(char * app_name, FILE *fp, int exists){
   }
 }
 
-Stop_list *init_stop_list(FILE *fp){
+/*Stop_list *init_stop_list(FILE *fp){
   Stop_list *list = malloc(sizeof(*list));
   pid_t tmp;
   int i=0;
@@ -385,6 +382,17 @@ Stop_list *init_stop_list(FILE *fp){
     i++;
   }
   list->count_procs=i;
+  return list;
+}*/
+
+Stop_list *init_stop_list(FILE *fp){
+  Stop_list *list = malloc(sizeof(*list));
+  if (list == NULL || fp==NULL){
+    exit(EXIT_FAILURE);
+  }
+  list->first = NULL;
+  list->count_procs=0;
+
   return list;
 }
 
@@ -432,9 +440,40 @@ void affiche_stop_liste(Stop_list *list){
     printf("Element: %d\n",pt_process->pid);
     pt_process = pt_process->next;
   }
+  printf("Number of processes in this list: %d\n",list->count_procs);
   printf("--------------------------\n");
 }
 
+void add_diff_count(Stop_list *list, FILE *fp){
+  if (list == NULL){
+    exit(EXIT_FAILURE);
+  }
+
+  while (list->first != NULL){
+    Proc *delete = list->first;
+    list->first = list->first->next;
+    free(delete);
+  }
+  list->count_procs=0;
+
+  fp = fopen(path_open_windows,"r");
+  if(fp==NULL){
+    perror("cannot open file open_windows.conf");
+  }
+  int scanned_pid;
+  while (fscanf(fp, "%d", &scanned_pid)>0){
+    kill(scanned_pid,SIGCONT);
+    Proc *process = malloc(sizeof(*process));
+    process->next=list->first;
+    process->pid = scanned_pid;
+    process->time_added=time(NULL);
+    process->paused=false;
+    list->first = process;
+    list->count_procs++;
+  } 
+}
+
+/*
 void add_diff_count(Stop_list *list, pid_t pid, int num){
   Proc *pt_previous;
   if (list == NULL){
@@ -467,6 +506,8 @@ void add_diff_count(Stop_list *list, pid_t pid, int num){
     }
   }
 }
+*/
+
 void delete_stop_list(Stop_list *list){
       if (list == NULL){
         exit(EXIT_FAILURE);
