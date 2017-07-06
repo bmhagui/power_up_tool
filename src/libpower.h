@@ -16,7 +16,7 @@
 #define EVENT_SIZE  ( sizeof (struct inotify_event) )
 #define EVENT_BUF_LEN     ( 1024 * ( EVENT_SIZE + 16 ) )
 
-typedef struct Element Element;
+/*typedef struct Element Element;
 struct Element{
     pid_t pid;
     Element *next;
@@ -25,7 +25,7 @@ struct Element{
 typedef struct Liste Liste;
 struct Liste{
     Element *first;
-};
+    };*/
 
 typedef struct Element_toggle Element_toggle;
 struct Element_toggle
@@ -56,7 +56,7 @@ struct Stop_list{
 
 struct sigaction action;
 
-Liste *black_list, *refresh_list;
+//Liste *black_list, *refresh_list;
 Stop_list *stop_list;
 
 char path_black_list[100], path_black_list_pid[100], verbose[100],
@@ -75,7 +75,7 @@ void activate_all(void);
 
 void hand(int sig);
 
-void activate_list(Liste *liste, Stop_list *list);
+/*void activate_list(Liste *liste, Stop_list *list);
 
 Liste *initialisation(void);
 
@@ -85,7 +85,7 @@ bool member(pid_t cpid, Liste *liste);
 
 Liste *create_list(char *file_path, Liste *mylist);
 
-void delete_list(Liste *liste);
+void delete_list(Liste *liste);*/
 
 void print_usage(void);
 

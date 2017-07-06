@@ -186,14 +186,14 @@ int main(int argc, char *argv[])
 	  Proc *tmp=stop_list->first;
 	  while(tmp != NULL){
 	    second_stop=time(NULL);
-	    printf("PID TO BE STOPPED: %d\n",tmp->pid);
-	    if (second_stop-tmp->time_added >= STOP_AFTER_S && tmp->pid!=new_active_pid && !(tmp->paused)){
+	    if (second_stop-tmp->time_added >= STOP_AFTER_S && !(tmp->paused)){
 	      if (verbose_bool){
 		sprintf(verbose,"ps -e | grep %d | awk '{print $4}'",tmp->pid);
 		system(verbose);
 		printf("has been paused\n\n");
 	      }
-	      kill(tmp->pid, SIGSTOP);
+	      //kill(tmp->pid, SIGSTOP);
+	      printf("%d stopped\n",tmp->pid);
 	      tmp->paused=true;
 	    }
 	    tmp=tmp->next;

@@ -28,7 +28,7 @@ void hand(int sig)
   }
 }
 
-void activate_list(Liste *liste, Stop_list *list){
+/*void activate_list(Liste *liste, Stop_list *list){
   if (liste == NULL || list == NULL){
     exit(EXIT_FAILURE);
   }
@@ -63,7 +63,7 @@ Liste *initialisation(void){
 }
 
 void insertion(Liste *liste, pid_t new_pid){
-  /* Création du nouvel élément */
+// Création du nouvel élément 
   Element *nouveau = malloc(sizeof(*nouveau));
 
   if (liste == NULL || nouveau == NULL){
@@ -71,7 +71,7 @@ void insertion(Liste *liste, pid_t new_pid){
   }
 
   nouveau->pid = new_pid;
-  /* Insertion de l'élément au début de la liste */
+  //Insertion de l'élément au début de la liste 
   nouveau->next = liste->first;
   liste->first = nouveau;
 }
@@ -114,7 +114,7 @@ void delete_list(Liste *liste){
         liste->first = liste->first->next;
         free(aSupprimer);
     }
-}
+}*/
 
 void print_usage(void) {
     printf("Usage: ./power_up [OPTION]\nWith no arguments the application is launched normally.\n\n");
