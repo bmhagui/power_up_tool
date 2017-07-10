@@ -6,11 +6,11 @@ int main(int argc, char *argv[])
   sigaction(SIGINT,&action,NULL);
   sigaction(SIGTERM,&action,NULL);
   check_paths();
-  int length, i = 0, opt= 0, long_index =0, exists =0, STOP_AFTER_S=0, REFRESH_RATE_S=0, count=0;
+  int length, i = 0, opt= 0, long_index =0, exists =0, STOP_AFTER_S=0, REFRESH_RATE_S=0, REFRESH_FOR_S=0, count=0;
   char buffer[EVENT_BUF_LEN];
-  time_t time_now;
-  bool verbose_bool = false;
-
+  bool verbose_bool = false, refresh_active=true;
+  time_t time_now, changed_refresh_status;
+  
   static struct option long_options[] = {
     {"help",                no_argument, 0,  'h' },
     {"refresh-list",        optional_argument, 0,  'r' },
@@ -97,6 +97,9 @@ int main(int argc, char *argv[])
       printf("At what frequencey would you like to refresh your refresh-list applications?\n");
       scanf("%d",&i);
       fprintf(fp,"REFRESH_RATE_S %d\n",i);
+      printf("For how long would you like your refreshed applications to stay active?\n");
+      scanf("%d",&i);
+      fprintf(fp,"REFRESH_FOR_S %d\n",i);
       fclose(fp);
       exit(0);
     case 'v' :
@@ -115,6 +118,7 @@ int main(int argc, char *argv[])
   }
   if (fscanf(fp,"%*s %d",&STOP_AFTER_S)!=EOF){
     fscanf(fp,"%*s %d",&REFRESH_RATE_S);
+    fscanf(fp,"%*s %d",&REFRESH_FOR_S);
   }
   else{
     perror("time.conf is empty");
@@ -135,6 +139,18 @@ int main(int argc, char *argv[])
   wd = inotify_add_watch( fd, path_notif, IN_MODIFY);
   
   printf("--Launched power_up.--\n\n");
+
+  system("bash ~/.config/power_up/get_pid.sh");
+  refresh_fp = fopen(path_refresh_list_pid,"r");
+  if(refresh_fp==NULL){
+    perror("cannot open file refresh_list_pid");
+  }
+  while (fscanf(refresh_fp, "%d", &pid)>0){
+    kill(pid,SIGSTOP);
+  }
+  refresh_active=false;
+  changed_refresh_status = time(NULL);
+  fclose(refresh_fp);
   
   stop_list = init_stop_list();
   while(1){
@@ -171,22 +187,49 @@ int main(int argc, char *argv[])
 	  fscanf(pipe_wc,"%d",&count);
 	  pclose(pipe_wc);
 
-	  affiche_stop_liste(stop_list);
-	  time_now = time(NULL);
+	  //affiche_stop_liste(stop_list);
 	  if (count != 0){
 	    if (count==stop_list->count_procs){
-	      equal_count(stop_list, new_active_pid, time_now);
-	      //printf("SAME\n");
+	      equal_count(stop_list, new_active_pid, STOP_AFTER_S);
 	    }
 	    else{
 	      if (stop_list->count_procs > count){
 		delete_unused_pid(stop_list);
 	      }
 	      else{
-		diff_count(stop_list, fp, new_active_pid, time_now);
+		diff_count(stop_list, fp, new_active_pid, STOP_AFTER_S);
 	      }
 	    }
-	  }	  
+	  }
+	  //Refreshing if needed here;
+	  time_now=time(NULL);
+	  if (time_now-changed_refresh_status > REFRESH_RATE_S && !refresh_active){
+	    refresh_fp = fopen(path_refresh_list_pid,"r");
+	    if(refresh_fp==NULL){
+	      perror("cannot open file refresh_list_pid");
+	    }
+	    printf("Activating refresh list\n");
+	    while (fscanf(refresh_fp, "%d", &pid)>0){
+	      kill(pid,SIGCONT);
+	    }
+	    refresh_active=true;
+	    changed_refresh_status = time(NULL);
+	    fclose(refresh_fp);
+	  }
+	  else if(time_now-changed_refresh_status > REFRESH_FOR_S && refresh_active){
+	    refresh_fp = fopen(path_refresh_list_pid,"r");
+	    if(refresh_fp==NULL){
+	      perror("cannot open file refresh_list_pid");
+	    }
+	    printf("Pausing refresh list\n");
+	    while (fscanf(refresh_fp, "%d", &pid)>0){
+	      kill(pid,SIGSTOP);
+	    }
+	    refresh_active=false;
+	    changed_refresh_status = time(NULL);
+	    fclose(refresh_fp);
+	  }
+	  //refresh over
 	}
 	i += EVENT_SIZE + event->len;
       }

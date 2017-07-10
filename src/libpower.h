@@ -67,7 +67,7 @@ char path_black_list[100], path_black_list_pid[100], verbose[100],
 
 pid_t pid, new_active_pid, old_active_pid;
 int fd, wd;
-FILE *fp,*fl,*flp, *pipe_popen, *check, *pipe_wc;
+FILE *fp,*fl,*flp, *pipe_popen, *check, *pipe_wc, *refresh_fp;
 DIR* dir;
 wordexp_t expansion;
 
@@ -107,11 +107,11 @@ void add_to_list(char * app_name, FILE *fp, int exists);
 
 Stop_list *init_stop_list();
 
-void equal_count(Stop_list *list, pid_t new_active_pid, time_t time_now);
+void equal_count(Stop_list *list, pid_t new_active_pid, time_t STOP_AFTER_S);
 
 void affiche_stop_liste(Stop_list *list);
 
-void diff_count(Stop_list *list, FILE *fp, pid_t new_active_pid, time_t time_now);
+void diff_count(Stop_list *list, FILE *fp, pid_t new_active_pid, time_t STOP_AFTER_S);
 
 void delete_stop_list(Stop_list *list);
 

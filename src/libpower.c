@@ -9,6 +9,14 @@ void activate_all(void){
     kill(pid, SIGCONT);
   }
   fclose(fp);
+  fp = fopen(path_refresh_list_pid,"r");
+  if(fp==NULL){
+    perror("cannot open file open_windows.conf");
+  }
+  while(fscanf(fp, "%d", &pid)>0) {
+    kill(pid, SIGCONT);
+  }
+  fclose(fp);
 }
 
 void hand(int sig)
@@ -18,7 +26,6 @@ void hand(int sig)
     activate_all();
     inotify_rm_watch( fd, wd );
     close(fd);
-    //fclose(fp);
     system("pkill -SIGTERM xprop");
     exit(0);
   }
@@ -208,8 +215,7 @@ void check_paths(void) {
   //system cp
   check = fopen(path_time,"a+");
   if(fscanf(check,"%s",tmp)<=0){
-    fprintf(check,"STOP_AFTER_S 0\nREFRESH_RATE_S 60\n");
-    printf("EMPTY\n");
+    fprintf(check,"STOP_AFTER_S 0\nREFRESH_RATE_S 60\nREFRESH_FOR_S 5\n");
   }
   if( check != NULL){
     fclose(check);
@@ -374,19 +380,23 @@ Stop_list *init_stop_list(FILE *fp){
   return list;
 }
 
-void equal_count(Stop_list *list, pid_t new_active_pid, time_t time_now){
-  Proc *pt_process;
+void equal_count(Stop_list *list, pid_t new_active_pid, time_t STOP_AFTER_S){
   if (list == NULL){
     exit(EXIT_FAILURE);
   }
-  pt_process=list->first;
+  Proc *pt_process=list->first;
+  time_t time_now;
   while (pt_process!=NULL){
     if (pt_process->pid == new_active_pid){
       pt_process->paused = false;
+      pt_process->time_added = time(NULL);
     }
     if (pt_process->paused == false && pt_process->pid != new_active_pid){
-      kill(pt_process->pid, SIGSTOP);
-      pt_process->paused = true;
+      time_now=time(NULL);
+      if(time_now-pt_process->time_added >= STOP_AFTER_S){
+	kill(pt_process->pid, SIGSTOP);
+	pt_process->paused = true;
+      }
     }
     
     pt_process = pt_process->next;
@@ -404,18 +414,19 @@ void affiche_stop_liste(Stop_list *list){
   printf("--------------------------\n");
 }
 
-void diff_count(Stop_list *list, FILE *fp, pid_t new_active_pid, time_t time_now){
+void diff_count(Stop_list *list, FILE *fp, pid_t new_active_pid, time_t STOP_AFTER_S){
   if (list == NULL){
     exit(EXIT_FAILURE);
   }
   int scanned_pid;
   bool found = false;
   Proc *pt_process=list->first;
-  
+  time_t time_now;
 
   while (pt_process!=NULL){
     if (pt_process->pid == new_active_pid){
       pt_process->paused = false;
+      pt_process->time_added = time(NULL);
     }    
     pt_process = pt_process->next;
   }
@@ -449,8 +460,11 @@ void diff_count(Stop_list *list, FILE *fp, pid_t new_active_pid, time_t time_now
   pt_process=list->first;
   while (pt_process!=NULL){
     if (pt_process->paused == false && pt_process->pid != new_active_pid){
-      kill(pt_process->pid, SIGSTOP);
-      pt_process->paused = true;
+      time_now=time(NULL);
+      if(time_now-pt_process->time_added >= STOP_AFTER_S){
+	kill(pt_process->pid, SIGSTOP);
+	pt_process->paused = true;
+      }
     }  
     pt_process = pt_process->next;
   }
