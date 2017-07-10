@@ -8,7 +8,7 @@ int main(int argc, char *argv[])
   check_paths();
   int length, i = 0, opt= 0, long_index =0, exists =0, STOP_AFTER_S=0, REFRESH_RATE_S=0, count=0;
   char buffer[EVENT_BUF_LEN];
-  time_t second_stop;
+  time_t time_now;
   bool verbose_bool = false;
 
   static struct option long_options[] = {
@@ -170,34 +170,23 @@ int main(int argc, char *argv[])
 	  }
 	  fscanf(pipe_wc,"%d",&count);
 	  pclose(pipe_wc);
-	  
+
+	  affiche_stop_liste(stop_list);
+	  time_now = time(NULL);
 	  if (count != 0){
 	    if (count==stop_list->count_procs){
-	      add_equal_count(stop_list, new_active_pid, old_active_pid);
+	      equal_count(stop_list, new_active_pid, time_now);
 	      //printf("SAME\n");
 	    }
 	    else{
-	      add_diff_count(stop_list, fp);
-	      //printf("DIFFERENT\n");
-	    }
-	  }
-	  
-	  affiche_stop_liste(stop_list);
-	  Proc *tmp=stop_list->first;
-	  while(tmp != NULL){
-	    second_stop=time(NULL);
-	    if (second_stop-tmp->time_added >= STOP_AFTER_S && !(tmp->paused)){
-	      if (verbose_bool){
-		sprintf(verbose,"ps -e | grep %d | awk '{print $4}'",tmp->pid);
-		system(verbose);
-		printf("has been paused\n\n");
+	      if (stop_list->count_procs > count){
+		delete_unused_pid(stop_list);
 	      }
-	      //kill(tmp->pid, SIGSTOP);
-	      printf("%d stopped\n",tmp->pid);
-	      tmp->paused=true;
+	      else{
+		diff_count(stop_list, fp, new_active_pid, time_now);
+	      }
 	    }
-	    tmp=tmp->next;
-	  }//while(tmp != NULL)	  
+	  }	  
 	}
 	i += EVENT_SIZE + event->len;
       }

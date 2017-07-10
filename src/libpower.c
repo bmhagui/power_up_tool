@@ -363,28 +363,6 @@ void add_to_list(char * app_name, FILE *fp, int exists){
   }
 }
 
-/*Stop_list *init_stop_list(FILE *fp){
-  Stop_list *list = malloc(sizeof(*list));
-  pid_t tmp;
-  int i=0;
-  if (list == NULL || fp==NULL){
-    exit(EXIT_FAILURE);
-  }
-  list->first = NULL;
-
-  while (fscanf(fp, "%d", &tmp)>0){
-    Proc *process = malloc(sizeof(*process));
-    process->next=list->first;
-    list->first = process;
-    process->pid = tmp;
-    process->time_added=time(NULL);
-    process->paused=false;
-    i++;
-  }
-  list->count_procs=i;
-  return list;
-}*/
-
 Stop_list *init_stop_list(FILE *fp){
   Stop_list *list = malloc(sizeof(*list));
   if (list == NULL || fp==NULL){
@@ -396,97 +374,87 @@ Stop_list *init_stop_list(FILE *fp){
   return list;
 }
 
-void add_equal_count(Stop_list *list, pid_t new_active_pid, pid_t old_active_pid){
+void equal_count(Stop_list *list, pid_t new_active_pid, time_t time_now){
   Proc *pt_process;
   if (list == NULL){
     exit(EXIT_FAILURE);
   }
-  if (old_active_pid != 0 && new_active_pid!=old_active_pid){
-    pt_process=list->first;
-    while (pt_process->pid != new_active_pid && pt_process->next!=NULL){
-      pt_process = pt_process->next;
-    } 
+  pt_process=list->first;
+  while (pt_process!=NULL){
+    if (pt_process->pid == new_active_pid){
+      pt_process->paused = false;
+    }
+    if (pt_process->paused == false && pt_process->pid != new_active_pid){
+      kill(pt_process->pid, SIGSTOP);
+      pt_process->paused = true;
+    }
+    
+    pt_process = pt_process->next;
   } 
-  if (pt_process != NULL && pt_process->pid == new_active_pid){
-    pt_process->pid = old_active_pid;
-    pt_process->paused=false;
-  }
 }
 
 void affiche_stop_liste(Stop_list *list){
   Proc *pt_process=list->first;
   printf("Processed to be stopped:\n");
   while (pt_process!=NULL){
-    printf("Element: %d\n",pt_process->pid);
+    printf("Element: %d, paused: %d\n",pt_process->pid, pt_process->paused);
     pt_process = pt_process->next;
   }
   printf("Number of processes in this list: %d\n",list->count_procs);
   printf("--------------------------\n");
 }
 
-void add_diff_count(Stop_list *list, FILE *fp){
+void diff_count(Stop_list *list, FILE *fp, pid_t new_active_pid, time_t time_now){
   if (list == NULL){
     exit(EXIT_FAILURE);
   }
+  int scanned_pid;
+  bool found = false;
+  Proc *pt_process=list->first;
+  
 
-  while (list->first != NULL){
-    Proc *delete = list->first;
-    list->first = list->first->next;
-    free(delete);
+  while (pt_process!=NULL){
+    if (pt_process->pid == new_active_pid){
+      pt_process->paused = false;
+    }    
+    pt_process = pt_process->next;
   }
-  list->count_procs=0;
-
+  
   fp = fopen(path_open_windows,"r");
   if(fp==NULL){
     perror("cannot open file open_windows.conf");
   }
-  int scanned_pid;
   while (fscanf(fp, "%d", &scanned_pid)>0){
-    kill(scanned_pid,SIGCONT);
-    Proc *process = malloc(sizeof(*process));
-    process->next=list->first;
-    process->pid = scanned_pid;
-    process->time_added=time(NULL);
-    process->paused=false;
-    list->first = process;
-    list->count_procs++;
-  } 
-}
-
-/*
-void add_diff_count(Stop_list *list, pid_t pid, int num){
-  Proc *pt_previous;
-  if (list == NULL){
-    exit(EXIT_FAILURE);
-  }
-  if (num!=0){
-    if (num<list->count_procs){
-      while (list->first != NULL){
-        Proc *aSupprimer = list->first;
-        list->first = list->first->next;
-        free(aSupprimer);
+    pt_process=list->first;
+    found=false;
+    while (pt_process!=NULL && found==false){
+      if (pt_process->pid == scanned_pid){
+        found = true;
       }
-      stop_list = init_stop_list(fp);
+      else{
+	pt_process = pt_process->next;
+      }
     }
-    else{
-      pt_previous=list->first;
-      while(pt_previous->next!=NULL){
-	pt_previous=pt_previous->next;
-      }
+    if (found == false){
       Proc *process = malloc(sizeof(*process));
-      
-      pt_previous->next = process;
-      
-      process->next=NULL;
-      process->pid = pid;
+      process->next=list->first;
+      process->pid = scanned_pid;
       process->time_added=time(NULL);
       process->paused=false;
-      
-      list->count_procs=num;
+      list->first = process;
+      list->count_procs++;
     }
   }
+  
+  pt_process=list->first;
+  while (pt_process!=NULL){
+    if (pt_process->paused == false && pt_process->pid != new_active_pid){
+      kill(pt_process->pid, SIGSTOP);
+      pt_process->paused = true;
+    }  
+    pt_process = pt_process->next;
+  }
 }
-*/
 
 void delete_stop_list(Stop_list *list){
       if (list == NULL){
@@ -499,6 +467,36 @@ void delete_stop_list(Stop_list *list){
     }
     free(list);
 }
+
+void delete_unused_pid(Stop_list *list){
+  if (list == NULL){
+    exit(EXIT_FAILURE);
+  }
+  
+  while (kill(list->first->pid,0) != 0){
+    Proc *pt_delete;
+    pt_delete = list->first;
+    list->first=list->first->next;
+    free(pt_delete);
+    list->count_procs--;
+  }
+
+  Proc *pt_previous=list->first, *pt_process=list->first->next;
+  while (pt_process!=NULL){
+    if (kill(pt_process->pid,0) != 0){
+      Proc *pt_delete = pt_process;
+      pt_previous->next = pt_process->next;
+      free(pt_delete);
+      pt_process=pt_previous->next;
+      list->count_procs--;
+    }
+    else{
+      pt_previous = pt_previous->next;
+      pt_process = pt_previous->next;
+    }
+  }
+}
+
 
 void black_listing(FILE *fp, Stop_list *list){
   pid_t tmp;

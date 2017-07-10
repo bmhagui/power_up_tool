@@ -107,12 +107,14 @@ void add_to_list(char * app_name, FILE *fp, int exists);
 
 Stop_list *init_stop_list();
 
-void add_equal_count(Stop_list *list, pid_t new_active_pid, pid_t old_active_pid);
+void equal_count(Stop_list *list, pid_t new_active_pid, time_t time_now);
 
 void affiche_stop_liste(Stop_list *list);
 
-void add_diff_count(Stop_list *list, FILE *fp);
+void diff_count(Stop_list *list, FILE *fp, pid_t new_active_pid, time_t time_now);
 
 void delete_stop_list(Stop_list *list);
+
+void delete_unused_pid(Stop_list *list);
 
 void black_listing(FILE *fp, Stop_list *list);
