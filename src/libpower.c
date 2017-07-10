@@ -380,7 +380,7 @@ Stop_list *init_stop_list(FILE *fp){
   return list;
 }
 
-void equal_count(Stop_list *list, pid_t new_active_pid, time_t STOP_AFTER_S){
+void equal_count(Stop_list *list, pid_t new_active_pid, time_t STOP_AFTER_S, bool verbose_bool){
   if (list == NULL){
     exit(EXIT_FAILURE);
   }
@@ -396,6 +396,11 @@ void equal_count(Stop_list *list, pid_t new_active_pid, time_t STOP_AFTER_S){
       if(time_now-pt_process->time_added >= STOP_AFTER_S){
 	kill(pt_process->pid, SIGSTOP);
 	pt_process->paused = true;
+	if (verbose_bool){
+	  sprintf(verbose,"ps -e | grep %d | awk '{print $4}'",pt_process->pid);
+	  system(verbose);
+	  printf("has been paused\n\n");
+	}
       }
     }
     
@@ -414,7 +419,7 @@ void affiche_stop_liste(Stop_list *list){
   printf("--------------------------\n");
 }
 
-void diff_count(Stop_list *list, FILE *fp, pid_t new_active_pid, time_t STOP_AFTER_S){
+void diff_count(Stop_list *list, FILE *fp, pid_t new_active_pid, time_t STOP_AFTER_S, bool verbose_bool){
   if (list == NULL){
     exit(EXIT_FAILURE);
   }
@@ -464,6 +469,11 @@ void diff_count(Stop_list *list, FILE *fp, pid_t new_active_pid, time_t STOP_AFT
       if(time_now-pt_process->time_added >= STOP_AFTER_S){
 	kill(pt_process->pid, SIGSTOP);
 	pt_process->paused = true;
+	if (verbose_bool){
+	  sprintf(verbose,"ps -e | grep %d | awk '{print $4}'",pt_process->pid);
+	  system(verbose);
+	  printf("has been paused\n\n");
+	}
       }
     }  
     pt_process = pt_process->next;

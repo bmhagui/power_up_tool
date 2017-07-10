@@ -107,11 +107,11 @@ void add_to_list(char * app_name, FILE *fp, int exists);
 
 Stop_list *init_stop_list();
 
-void equal_count(Stop_list *list, pid_t new_active_pid, time_t STOP_AFTER_S);
+void equal_count(Stop_list *list, pid_t new_active_pid, time_t STOP_AFTER_S, bool verbose_bool);
 
 void affiche_stop_liste(Stop_list *list);
 
-void diff_count(Stop_list *list, FILE *fp, pid_t new_active_pid, time_t STOP_AFTER_S);
+void diff_count(Stop_list *list, FILE *fp, pid_t new_active_pid, time_t STOP_AFTER_S, bool verbose_bool);
 
 void delete_stop_list(Stop_list *list);
 

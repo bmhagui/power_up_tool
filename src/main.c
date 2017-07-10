@@ -190,14 +190,14 @@ int main(int argc, char *argv[])
 	  //affiche_stop_liste(stop_list);
 	  if (count != 0){
 	    if (count==stop_list->count_procs){
-	      equal_count(stop_list, new_active_pid, STOP_AFTER_S);
+	      equal_count(stop_list, new_active_pid, STOP_AFTER_S, verbose_bool);
 	    }
 	    else{
 	      if (stop_list->count_procs > count){
 		delete_unused_pid(stop_list);
 	      }
 	      else{
-		diff_count(stop_list, fp, new_active_pid, STOP_AFTER_S);
+		diff_count(stop_list, fp, new_active_pid, STOP_AFTER_S, verbose_bool);
 	      }
 	    }
 	  }
@@ -208,7 +208,7 @@ int main(int argc, char *argv[])
 	    if(refresh_fp==NULL){
 	      perror("cannot open file refresh_list_pid");
 	    }
-	    printf("Activating refresh list\n");
+	    //printf("Activating refresh list\n");
 	    while (fscanf(refresh_fp, "%d", &pid)>0){
 	      kill(pid,SIGCONT);
 	    }
@@ -221,7 +221,7 @@ int main(int argc, char *argv[])
 	    if(refresh_fp==NULL){
 	      perror("cannot open file refresh_list_pid");
 	    }
-	    printf("Pausing refresh list\n");
+	    //printf("Pausing refresh list\n");
 	    while (fscanf(refresh_fp, "%d", &pid)>0){
 	      kill(pid,SIGSTOP);
 	    }
