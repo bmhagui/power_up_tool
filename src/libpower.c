@@ -118,7 +118,10 @@ void check_paths(void) {
   if( check != NULL){
     fclose(check);
   }
-  check = fopen(path_black_list_pid,"a+");
+  
+  system("> $XDG_RUNTIME_DIR/black_list_pid.conf");
+  system("> $XDG_RUNTIME_DIR/refresh_list_pid.conf");
+  /*check = fopen(path_black_list_pid,"a+");
   if( check != NULL){
     fclose(check);
   }
@@ -126,7 +129,7 @@ void check_paths(void) {
   if( check != NULL){
     fclose(check);
   }
-  /*check = fopen(path_open_windows,"a+");
+  check = fopen(path_open_windows,"a+");
   if( check != NULL){
     fclose(check);
   }
@@ -479,7 +482,7 @@ void handle_applications(int STOP_AFTER_S,int REFRESH_RATE_S, int REFRESH_FOR_S,
     if(refresh_fp==NULL){
       perror("cannot open file refresh_list_pid");
     }
-    printf("Activating refresh list\n");
+    //printf("Activating refresh list\n");
     while (fscanf(refresh_fp, "%d", &pid)>0){
       kill(pid,SIGCONT);
     }
@@ -492,7 +495,7 @@ void handle_applications(int STOP_AFTER_S,int REFRESH_RATE_S, int REFRESH_FOR_S,
     if(refresh_fp==NULL){
       perror("cannot open file refresh_list_pid");
     }
-    printf("Pausing refresh list\n");
+    //printf("Pausing refresh list\n");
     while (fscanf(refresh_fp, "%d", &pid)>0){
       if (pid!=new_active_pid){
 	kill(pid,SIGSTOP);

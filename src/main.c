@@ -179,7 +179,7 @@ int main(int argc, char *argv[])
     /* timed out! */
     else if (FD_ISSET (fd, &rfds)) /* inotify events are available! */
       {
-        printf("Inotify events available\n");
+        //printf("Inotify events available\n");
 	i=0;
 	length = read( fd, buffer, EVENT_BUF_LEN );
 	if ( length < 0 ) {
