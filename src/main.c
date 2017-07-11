@@ -137,10 +137,12 @@ int main(int argc, char *argv[])
     perror( "inotify_init" );
   }
   wd = inotify_add_watch( fd, path_notif, IN_MODIFY);
+
   
   printf("--Launched power_up.--\n\n");
-
-  system("bash ~/.config/power_up/get_pid.sh");
+  
+  //system("bash ~/.config/power_up/get_pid.sh");
+  get_pid();
   refresh_fp = fopen(path_refresh_list_pid,"r");
   if(refresh_fp==NULL){
     perror("cannot open file refresh_list_pid");
@@ -176,7 +178,8 @@ int main(int argc, char *argv[])
 	    printf("is active.\n\n");
 	  }
 	  
-	  system("bash ~/.config/power_up/get_pid.sh");
+	  //system("bash ~/.config/power_up/get_pid.sh");
+	  get_pid();
 	  system("wmctrl -l -p | grep -vf $XDG_RUNTIME_DIR/black_list_pid.conf | grep -vf $XDG_RUNTIME_DIR/refresh_list_pid.conf | awk '{print $2,$3}' | grep -v - | awk '{print $2}' | sort -u -b > $XDG_RUNTIME_DIR/open_windows.conf");
 	  
 	  //STOP

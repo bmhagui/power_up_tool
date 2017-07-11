@@ -16,17 +16,6 @@
 #define EVENT_SIZE  ( sizeof (struct inotify_event) )
 #define EVENT_BUF_LEN     ( 1024 * ( EVENT_SIZE + 16 ) )
 
-/*typedef struct Element Element;
-struct Element{
-    pid_t pid;
-    Element *next;
-};
-
-typedef struct Liste Liste;
-struct Liste{
-    Element *first;
-    };*/
-
 typedef struct Element_toggle Element_toggle;
 struct Element_toggle
 {
@@ -56,14 +45,12 @@ struct Stop_list{
 
 struct sigaction action;
 
-//Liste *black_list, *refresh_list;
 Stop_list *stop_list;
 
 char path_black_list[100], path_black_list_pid[100], verbose[100],
   path_refresh_list[100], path_refresh_list_pid[100], path_config_powerup[100],
   path_open_windows[100], path_window_change[100], path_notif[100], path_time[100],
-  app_name[100], read_name[100], path_runtime_dir[100], get_pid_command[100], tmp[100];
-
+  app_name[100], read_name[100], path_runtime_dir[100], tmp[100];
 
 pid_t pid, new_active_pid, old_active_pid;
 int fd, wd;
@@ -74,18 +61,6 @@ wordexp_t expansion;
 void activate_all(void);
 
 void hand(int sig);
-
-/*void activate_list(Liste *liste, Stop_list *list);
-
-Liste *initialisation(void);
-
-void insertion(Liste *liste, pid_t new_pid);
-
-bool member(pid_t cpid, Liste *liste);
-
-Liste *create_list(char *file_path, Liste *mylist);
-
-void delete_list(Liste *liste);*/
 
 void print_usage(void);
 
@@ -117,4 +92,4 @@ void delete_stop_list(Stop_list *list);
 
 void delete_unused_pid(Stop_list *list);
 
-void black_listing(FILE *fp, Stop_list *list);
+void get_pid(void);

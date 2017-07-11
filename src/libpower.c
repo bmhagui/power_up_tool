@@ -35,94 +35,6 @@ void hand(int sig)
   }
 }
 
-/*void activate_list(Liste *liste, Stop_list *list){
-  if (liste == NULL || list == NULL){
-    exit(EXIT_FAILURE);
-  }
-  if (liste->first != NULL){
-    Element *actuel = liste->first;
-    Proc *process;
-    
-    while (actuel != NULL){
-      process = list->first;
-      while( (process!=NULL && process->pid != actuel->pid)){
-	process = process->next;
-      }
-      if (process!=NULL && process->pid == actuel->pid){
-	kill(actuel->pid,SIGCONT);
-	process->paused=false;
-      }
-      actuel = actuel->next;
-    }
-  }
-}
-
-Liste *initialisation(void){
-  Liste *liste = malloc(sizeof(*liste));
-  Element *element = malloc(sizeof(*element));
-  if (liste == NULL || element == NULL){
-    exit(EXIT_FAILURE);
-  }
-  element->pid = 0;
-  element->next = NULL;
-  liste->first = element;
-  return liste;
-}
-
-void insertion(Liste *liste, pid_t new_pid){
-// Création du nouvel élément 
-  Element *nouveau = malloc(sizeof(*nouveau));
-
-  if (liste == NULL || nouveau == NULL){
-    exit(EXIT_FAILURE);
-  }
-
-  nouveau->pid = new_pid;
-  //Insertion de l'élément au début de la liste 
-  nouveau->next = liste->first;
-  liste->first = nouveau;
-}
-
-bool member(pid_t cpid, Liste *liste){
-  bool res = false;
-  if (liste == NULL){
-    exit(EXIT_FAILURE);
-  }
-  Element *actuel = liste->first;
-  while (actuel != NULL){
-    if (actuel->pid == cpid){
-      res = true;
-    }
-    actuel = actuel->next;
-  }
-  return res;
-}
-
-Liste *create_list(char *file_path, Liste *mylist){
-    
-  fl = fopen(file_path,"r");
-  if(fl==NULL){
-    perror("create_list error");
-  }
-
-  while( !feof(fl)) {
-    fscanf(fl, "%d", &pid);
-    insertion(mylist, pid);
-  }
-  return mylist; 
-}
-
-void delete_list(Liste *liste){
-   if (liste == NULL){
-        exit(EXIT_FAILURE);
-    }
-    while (liste->first != NULL){
-        Element *aSupprimer = liste->first;
-        liste->first = liste->first->next;
-        free(aSupprimer);
-    }
-}*/
-
 void print_usage(void) {
     printf("Usage: ./power_up [OPTION]\nWith no arguments the application is launched normally.\n\n");
     printf("[OPTION]:\n");
@@ -189,28 +101,6 @@ void check_paths(void) {
   else{
     closedir(dir);
   }
-
-  /*sprintf(tmp,"%d",getpid());
-  strcpy(get_pid_command,"stat /proc/");
-  strcat(get_pid_command,tmp);
-  strcat(get_pid_command,"/exe | grep /home/ | sed 's/.*-> //' | sed 's/[a-z]*_[a-z]*$//'");*/
-  pid=getpid();
-  sprintf(get_pid_command,"stat /proc/%d/exe | grep /home/ | sed 's/.*-> //' | sed 's/[a-z]*_[a-z]*$//'",pid);
-  //printf("%s\n",get_pid_command);
-  
-  if (( pipe_popen = popen(get_pid_command, "r")) == NULL)
-    {
-      perror("popen");
-      exit(1);
-    }
-  fscanf(pipe_popen,"%s",tmp);
-  pclose(pipe_popen);
-  /*strcpy(get_pid_command, "cp -u ");
-  strcat(get_pid_command,tmp);
-  strcat(get_pid_command,"bin/get_pid.sh ~/.config/power_up\n");*/
-  sprintf(get_pid_command,"cp -u %sbin/get_pid.sh ~/.config/power_up",tmp);
-  //printf("%s\n",get_pid_command);
-  system(get_pid_command);
   
   //system cp
   check = fopen(path_time,"a+");
@@ -521,32 +411,21 @@ void delete_unused_pid(Stop_list *list){
   }
 }
 
-
-void black_listing(FILE *fp, Stop_list *list){
-  pid_t tmp;
-  int found = 0;
-  Proc *pt_process, *pt_previous;
-  fp = fopen(path_black_list_pid,"r");
+void get_pid(void){
+  FILE *black, *refresh;
+  char get_pid[100],name[100];
+  black = fopen(path_black_list,"r");
+  refresh = fopen(path_refresh_list,"r");
   
-  while (fscanf(fp, "%d", &tmp)>0){
-    
-    pt_process=list->first;
-    if (pt_process->pid == tmp){
-      found = 1;
-      list->first = pt_process->next;    
-      free(pt_process);
-    }
-    else{
-      while (pt_process!=NULL && found !=1){
-	if (pt_process->pid == tmp){
-	  found =1;
-	  pt_previous->next = pt_process->next;
-	  free(pt_process);
-	}
-	pt_previous = pt_process;
-	pt_process = pt_process->next;
-      }
-    }
+  while (fscanf(black,"%s",name)>0){
+    sprintf(get_pid,"pgrep -i %s > $XDG_RUNTIME_DIR/black_list_pid.conf",name);
+    system(get_pid);
   }
-  fclose(fp);
+  fclose(black);
+  
+  while (fscanf(refresh,"%s",name)>0){
+    sprintf(get_pid,"pgrep -i %s > $XDG_RUNTIME_DIR/refresh_list_pid.conf",name);
+    system(get_pid);
+  }
+  fclose(refresh);
 }
