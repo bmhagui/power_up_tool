@@ -8,8 +8,11 @@ int main(int argc, char *argv[])
   check_paths();
   int length, i = 0, opt= 0, long_index =0, exists =0, STOP_AFTER_S=0, REFRESH_RATE_S=0, REFRESH_FOR_S=0, count=0;
   char buffer[EVENT_BUF_LEN];
-  bool verbose_bool = false, refresh_active=true;
-  time_t time_now, changed_refresh_status;
+  bool verbose_bool = false;
+  
+  struct timeval timer;
+  fd_set rfds;
+  int ret;
   
   static struct option long_options[] = {
     {"help",                no_argument, 0,  'h' },
@@ -140,8 +143,6 @@ int main(int argc, char *argv[])
 
   
   printf("--Launched power_up.--\n\n");
-  
-  //system("bash ~/.config/power_up/get_pid.sh");
   get_pid();
   
   refresh_fp = fopen(path_refresh_list_pid,"r");
@@ -151,93 +152,50 @@ int main(int argc, char *argv[])
   while (fscanf(refresh_fp, "%d", &pid)>0){
     kill(pid,SIGSTOP);
   }
-  refresh_active=false;
+  //refresh_active=false;
   changed_refresh_status = time(NULL);
   fclose(refresh_fp);
   
   stop_list = init_stop_list();
   while(1){
-    i=0;
-    length = read( fd, buffer, EVENT_BUF_LEN );
-    if ( length < 0 ) {
-      perror( "read" );
-    }  
-    
-    while ( i < length ) {     struct inotify_event *event = ( struct inotify_event * ) &buffer[ i ];     if ( event->len ) {
-	if ( event->mask & IN_MODIFY ) {
-	  old_active_pid = new_active_pid;
-	  if (( pipe_wc = popen("xdotool getwindowfocus getwindowpid", "r")) == NULL){
-	    perror("popen");
-	    exit(1);
-	  }
-	  fscanf(pipe_wc,"%d",&new_active_pid);
-	  pclose(pipe_wc);
-	  kill(new_active_pid, SIGCONT);
-	  if (verbose_bool){
-	    sprintf(verbose,"ps -e | grep %d | awk '{print $4}'",new_active_pid);
-	    system(verbose);
-	    printf("is active.\n\n");
-	  }
-	  
-	  //system("bash ~/.config/power_up/get_pid.sh");
-	  get_pid();
-	  system("wmctrl -l -p | grep -vf $XDG_RUNTIME_DIR/black_list_pid.conf | grep -vf $XDG_RUNTIME_DIR/refresh_list_pid.conf | awk '{print $2,$3}' | grep -v - | awk '{print $2}' | sort -u -b > $XDG_RUNTIME_DIR/open_windows.conf");
-	  
-	  //STOP
-	  if (( pipe_wc = popen("grep -cve '^\\s*$' $XDG_RUNTIME_DIR/open_windows.conf", "r")) == NULL){
-	    perror("popen");
-	    exit(1);
-	  }
-	  fscanf(pipe_wc,"%d",&count);
-	  pclose(pipe_wc);
+    /* timeout after five seconds */
+    timer.tv_sec = 1;
+    timer.tv_usec = 0;
 
-	  //affiche_stop_liste(stop_list);
-	  if (count != 0){
-	    if (count==stop_list->count_procs){
-	      equal_count(stop_list, new_active_pid, STOP_AFTER_S, verbose_bool);
+    /* zero-out the fd_set */
+    FD_ZERO (&rfds);
+    /*
+     * add the inotify fd to the fd_set -- of course,
+     * your application will probably want to add
+     * other file descriptors here, too
+     */
+    FD_SET (fd, &rfds);
+    ret = select (fd + 1, &rfds, NULL, NULL, &timer);
+    if (ret < 0)
+      printf("error case in select");
+    else if (!ret)
+      // printf("error case in select timed out\n");
+      handle_applications(STOP_AFTER_S, REFRESH_RATE_S, REFRESH_FOR_S, count, verbose_bool);
+    /* timed out! */
+    else if (FD_ISSET (fd, &rfds)) /* inotify events are available! */
+      {
+        printf("Inotify events available\n");
+	i=0;
+	length = read( fd, buffer, EVENT_BUF_LEN );
+	if ( length < 0 ) {
+	  perror( "read" );
+	}  
+	
+	while ( i < length ) {     struct inotify_event *event = ( struct inotify_event * ) &buffer[ i ];     if ( event->len ) {
+	    if ( event->mask & IN_MODIFY ) {
+	      //Pausing and refreshing apps
+	      handle_applications(STOP_AFTER_S, REFRESH_RATE_S, REFRESH_FOR_S, count, verbose_bool);
+	      //
 	    }
-	    else{
-	      if (stop_list->count_procs > count){
-		delete_unused_pid(stop_list);
-	      }
-	      else{
-		diff_count(stop_list, fp, new_active_pid, STOP_AFTER_S, verbose_bool);
-	      }
-	    }
+	    i += EVENT_SIZE + event->len;
 	  }
-	  //Refreshing if needed here;
-	  time_now=time(NULL);
-	  if (time_now-changed_refresh_status > REFRESH_RATE_S && !refresh_active){
-	    refresh_fp = fopen(path_refresh_list_pid,"r");
-	    if(refresh_fp==NULL){
-	      perror("cannot open file refresh_list_pid");
-	    }
-	    //printf("Activating refresh list\n");
-	    while (fscanf(refresh_fp, "%d", &pid)>0){
-	      kill(pid,SIGCONT);
-	    }
-	    refresh_active=true;
-	    changed_refresh_status = time(NULL);
-	    fclose(refresh_fp);
-	  }
-	  else if(time_now-changed_refresh_status > REFRESH_FOR_S && refresh_active){
-	    refresh_fp = fopen(path_refresh_list_pid,"r");
-	    if(refresh_fp==NULL){
-	      perror("cannot open file refresh_list_pid");
-	    }
-	    //printf("Pausing refresh list\n");
-	    while (fscanf(refresh_fp, "%d", &pid)>0){
-	      kill(pid,SIGSTOP);
-	    }
-	    refresh_active=false;
-	    changed_refresh_status = time(NULL);
-	    fclose(refresh_fp);
-	  }
-	  //refresh over
+	  //rewind(fp);
 	}
-	i += EVENT_SIZE + event->len;
       }
-      rewind(fp);
-    }
   }
 }

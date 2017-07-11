@@ -39,6 +39,7 @@ struct Proc{
 
 typedef struct Stop_list Stop_list;
 struct Stop_list{
+  bool refresh_active;
   int count_procs;
   Proc *first;
 };
@@ -57,6 +58,8 @@ int fd, wd;
 FILE *fp,*fl,*flp, *pipe_popen, *check, *pipe_wc, *refresh_fp;
 DIR* dir;
 wordexp_t expansion;
+
+time_t time_now, changed_refresh_status;
 
 void activate_all(void);
 
@@ -93,3 +96,5 @@ void delete_stop_list(Stop_list *list);
 void delete_unused_pid(Stop_list *list);
 
 void get_pid(void);
+
+void handle_applications(int STOP_AFTER_S,int REFRESH_RATE_S, int REFRESH_FOR_S, int count, bool verbose_bool);

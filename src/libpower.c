@@ -264,6 +264,7 @@ Stop_list *init_stop_list(FILE *fp){
   if (list == NULL || fp==NULL){
     exit(EXIT_FAILURE);
   }
+  list->refresh_active=false;
   list->first = NULL;
   list->count_procs=0;
 
@@ -428,4 +429,78 @@ void get_pid(void){
     system(get_pid);
   }
   fclose(refresh);
+}
+
+void handle_applications(int STOP_AFTER_S,int REFRESH_RATE_S, int REFRESH_FOR_S, int count, bool verbose_bool){
+  old_active_pid = new_active_pid;
+  if (( pipe_wc = popen("xdotool getwindowfocus getwindowpid", "r")) == NULL){
+    perror("popen");
+    exit(1);
+  }
+  fscanf(pipe_wc,"%d",&new_active_pid);
+  pclose(pipe_wc);
+  kill(new_active_pid, SIGCONT);
+  if (verbose_bool){
+    sprintf(verbose,"ps -e | grep %d | awk '{print $4}'",new_active_pid);
+    system(verbose);
+    printf("is active.\n\n");
+  }
+  
+  get_pid();
+  system("wmctrl -l -p | grep -vf $XDG_RUNTIME_DIR/black_list_pid.conf | grep -vf $XDG_RUNTIME_DIR/refresh_list_pid.conf | awk '{print $2,$3}' | grep -v - | awk '{print $2}' | sort -u -b > $XDG_RUNTIME_DIR/open_windows.conf");
+  
+  //STOP
+  if (( pipe_wc = popen("grep -cve '^\\s*$' $XDG_RUNTIME_DIR/open_windows.conf", "r")) == NULL){
+    perror("popen");
+    exit(1);
+  }
+  fscanf(pipe_wc,"%d",&count);
+  pclose(pipe_wc);
+  
+  //affiche_stop_liste(stop_list);
+  if (count != 0){
+    if (count==stop_list->count_procs){
+      equal_count(stop_list, new_active_pid, STOP_AFTER_S, verbose_bool);
+    }
+    else{
+      if (stop_list->count_procs > count){
+	delete_unused_pid(stop_list);
+      }
+      else{
+	diff_count(stop_list, fp, new_active_pid, STOP_AFTER_S, verbose_bool);
+      }
+    }
+  }
+  //Refreshing if needed here;
+  //printf("Refresh_active: %d\n",);
+  time_now=time(NULL);
+  if (time_now-changed_refresh_status > REFRESH_RATE_S && !stop_list->refresh_active){
+    refresh_fp = fopen(path_refresh_list_pid,"r");
+    if(refresh_fp==NULL){
+      perror("cannot open file refresh_list_pid");
+    }
+    printf("Activating refresh list\n");
+    while (fscanf(refresh_fp, "%d", &pid)>0){
+      kill(pid,SIGCONT);
+    }
+    stop_list->refresh_active=true;
+    changed_refresh_status = time(NULL);
+    fclose(refresh_fp);
+  }
+  else if(time_now-changed_refresh_status > REFRESH_FOR_S && stop_list->refresh_active){
+    refresh_fp = fopen(path_refresh_list_pid,"r");
+    if(refresh_fp==NULL){
+      perror("cannot open file refresh_list_pid");
+    }
+    printf("Pausing refresh list\n");
+    while (fscanf(refresh_fp, "%d", &pid)>0){
+      if (pid!=new_active_pid){
+	kill(pid,SIGSTOP);
+      }
+    }
+    stop_list->refresh_active=false;
+    changed_refresh_status = time(NULL);
+    fclose(refresh_fp);
+  }
+  //refresh over
 }
