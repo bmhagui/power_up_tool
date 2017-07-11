@@ -443,7 +443,7 @@ void handle_applications(int STOP_AFTER_S,int REFRESH_RATE_S, int REFRESH_FOR_S,
   fscanf(pipe_wc,"%d",&new_active_pid);
   pclose(pipe_wc);
   kill(new_active_pid, SIGCONT);
-  if (verbose_bool){
+  if (verbose_bool && new_active_pid!=old_active_pid){
     sprintf(verbose,"ps -e | grep %d | awk '{print $4}'",new_active_pid);
     system(verbose);
     printf("is active.\n\n");
