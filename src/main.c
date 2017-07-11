@@ -143,6 +143,7 @@ int main(int argc, char *argv[])
   
   //system("bash ~/.config/power_up/get_pid.sh");
   get_pid();
+  
   refresh_fp = fopen(path_refresh_list_pid,"r");
   if(refresh_fp==NULL){
     perror("cannot open file refresh_list_pid");

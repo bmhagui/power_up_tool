@@ -4,9 +4,9 @@ CFLAGS = -Wall
 all : power_up
 
 power_up : ./src/libpower.h ./src/libpower.c ./src/main.c
-	$(CC) -c -g  ./src/libpower.c -o ./src/libpower.o $(CFLAGS)
-	$(CC) -c -g  ./src/main.c -o ./src/main.o $(CFLAGS)
-	$(CC) -g ./src/main.o ./src/libpower.o -o power_up $(CFLAGS)
+	$(CC) -c -g -pg  ./src/libpower.c -o ./src/libpower.o $(CFLAGS)
+	$(CC) -c -g -pg ./src/main.c -o ./src/main.o $(CFLAGS)
+	$(CC) -g -pg ./src/main.o ./src/libpower.o -o power_up $(CFLAGS)
 
 
 clean :

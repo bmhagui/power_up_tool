@@ -26,7 +26,7 @@ int main( )
     struct timeval time;
     fd_set rfds;
     int ret;
-
+    
     /*creating the INOTIFY instance*/
     fd = inotify_init();
     /*checking for error*/
@@ -36,6 +36,9 @@ int main( )
     /*adding the “/tmp” directory into watch list. Here, the suggestion is to validate the existence of the directory before adding into monitoring list.*/
     wd = inotify_add_watch( fd, "testnoti", IN_CLOSE_WRITE | IN_CREATE | IN_DELETE | IN_ALL_EVENTS | IN_OPEN);
 
+
+    while(1)
+      {   
     /* timeout after five seconds */
     time.tv_sec = 5;
     time.tv_usec = 0;
@@ -48,18 +51,16 @@ int main( )
      * other file descriptors here, too
      */
     FD_SET (fd, &rfds);
-
     ret = select (fd + 1, &rfds, NULL, NULL, &time);
+
     if (ret < 0)
         printf("error case in select");
     else if (!ret)
-        printf("error case in select timed out");
+        printf("error case in select timed out\n");
     /* timed out! */
-    else if (FD_ISSET (fd, &rfds))
-        /* inotify events are available! */
+    else if (FD_ISSET (fd, &rfds)) /* inotify events are available! */
     {
-        while(1)
-        {
+        printf("Inotify events available\n");
             /*read to determine the event change happens on “/tmp” directory. Actually this read blocks until the change event occurs*/
             length = read( fd, buffer, EVENT_BUF_LEN );
             /*checking for error*/

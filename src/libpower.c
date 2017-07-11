@@ -114,11 +114,11 @@ void check_paths(void) {
   if( check != NULL){
     fclose(check);
   }
-  check = fopen(path_black_list_pid,"a+");
+  check = fopen(path_refresh_list,"a+");
   if( check != NULL){
     fclose(check);
   }
-  check = fopen(path_refresh_list,"a+");
+  check = fopen(path_black_list_pid,"a+");
   if( check != NULL){
     fclose(check);
   }
@@ -126,14 +126,14 @@ void check_paths(void) {
   if( check != NULL){
     fclose(check);
   }
-  check = fopen(path_open_windows,"a+");
+  /*check = fopen(path_open_windows,"a+");
   if( check != NULL){
     fclose(check);
   }
   check = fopen(path_window_change,"a+");
   if( check != NULL){
     fclose(check);
-  }
+    }*/
 }
 
 Liste_toggle *init_toggle(void){
