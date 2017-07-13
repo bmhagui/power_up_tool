@@ -50,30 +50,39 @@ Flags:
 -------
 
 **--refresh-list** or **-r**
+
 * If one or more arguments are added with this flag then those arguments will be added to **refresh_list.conf**. If there is no argument then the next window you click on will be added to the refresh list.
   
 **--black-list** or **-b**
+
 * If one or more arguments are added with this flag then those arguments will be added to **black_list.conf**. If there is no argument then the next window you click on will be added to the black list.
   
 **--kill-power-up** or **--k**
+
 * Terminate the power_up tool currently running.
   
 **--list-apps** or **-l**
+
 * Displays a list of open window applications and their PIDs.
   
 **--toggle-active-window** or **-t**
+
 * Add the currently open application to the blacklist or remove it if it is already on there.
   
 **--wait-for <seconds>** or **--w <seconds>**
+
 * Waits the entered number of seconds before launching the app. If the app is alraedy running, this will stop the app and re-run it in the second terminal after <seconds>.
   
 **--configure-pause-and-refresh-rates** or **-c**
+
 * Choose after how many seconds to pause the background apps, the frequency of refreshing your refresh-list apps and for how long to keep them active.
   
 **--verbose** or **-v**
+
 * Launch the app in verbose mode, print out the name of each application and whether it was paused or continued.
   
 **--help** or **-h**
+
 * Prints out details about the available flags and how to use them.
 
 ------------------
