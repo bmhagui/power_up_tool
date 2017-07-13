@@ -48,14 +48,14 @@ struct sigaction action;
 
 Stop_list *stop_list;
 
-char path_black_list[100], path_black_list_pid[100], verbose[100],
+char path_black_list[100], verbose[100], path_runtime_dir[100],
   path_refresh_list[100], path_refresh_list_pid[100], path_config_powerup[100],
   path_open_windows[100], path_window_change[100], path_notif[100], path_time[100],
-  app_name[100], read_name[100], path_runtime_dir[100], tmp[100];
+  app_name[100], read_name[100], tmp[100];
 
 pid_t pid, new_active_pid, old_active_pid;
 int fd, wd;
-FILE *fp,*fl,*flp, *pipe_popen, *check, *pipe_wc, *refresh_fp;
+FILE *fp, *pipe_popen, *check, *pipe_wc, *refresh_fp;
 DIR* dir;
 wordexp_t expansion;
 

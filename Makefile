@@ -14,4 +14,4 @@ clean :
 	rm ./src/*.o
 
 install :
-	sudo cp `sudo find ~ -name "power_up" | grep bin/power_up` -uv /etc/bash_completion.d/
+	sudo cp ./bin/power_up -uv /etc/bash_completion.d/

@@ -64,9 +64,6 @@ void check_paths(void) {
   strcpy(path_black_list, path_config_powerup);
   strcat(path_black_list, "black_list.conf");
   
-  strcpy(path_black_list_pid, path_runtime_dir);
-  strcat(path_black_list_pid, "black_list_pid.conf");
-  
   strcpy(path_refresh_list, path_config_powerup);
   strcat(path_refresh_list, "refresh_list.conf");
   
@@ -105,7 +102,7 @@ void check_paths(void) {
   //system cp
   check = fopen(path_time,"a+");
   if(fscanf(check,"%s",tmp)<=0){
-    fprintf(check,"STOP_AFTER_S 0\nREFRESH_RATE_S 60\nREFRESH_FOR_S 5\n");
+    fprintf(check,"STOP_AFTER_S = 0\nREFRESH_RATE_S = 60\nREFRESH_FOR_S = 5\n");
   }
   if( check != NULL){
     fclose(check);
@@ -121,22 +118,6 @@ void check_paths(void) {
   
   system("> $XDG_RUNTIME_DIR/black_list_pid.conf");
   system("> $XDG_RUNTIME_DIR/refresh_list_pid.conf");
-  /*check = fopen(path_black_list_pid,"a+");
-  if( check != NULL){
-    fclose(check);
-  }
-  check = fopen(path_refresh_list_pid,"a+");
-  if( check != NULL){
-    fclose(check);
-  }
-  check = fopen(path_open_windows,"a+");
-  if( check != NULL){
-    fclose(check);
-  }
-  check = fopen(path_window_change,"a+");
-  if( check != NULL){
-    fclose(check);
-    }*/
 }
 
 Liste_toggle *init_toggle(void){

@@ -96,13 +96,13 @@ int main(int argc, char *argv[])
       
       printf("After how many seconds would you like to pause your applications?\n");
       scanf("%d",&i);
-      fprintf(fp,"STOP_AFTER_S %d\n",i);
+      fprintf(fp,"STOP_AFTER_S = %d\n",i);
       printf("At what frequencey would you like to refresh your refresh-list applications?\n");
       scanf("%d",&i);
-      fprintf(fp,"REFRESH_RATE_S %d\n",i);
+      fprintf(fp,"REFRESH_RATE_S = %d\n",i);
       printf("For how long would you like your refreshed applications to stay active?\n");
       scanf("%d",&i);
-      fprintf(fp,"REFRESH_FOR_S %d\n",i);
+      fprintf(fp,"REFRESH_FOR_S = %d\n",i);
       fclose(fp);
       exit(0);
     case 'v' :
@@ -119,9 +119,9 @@ int main(int argc, char *argv[])
     perror("fopen");
     exit(1);
   }
-  if (fscanf(fp,"%*s %d",&STOP_AFTER_S)!=EOF){
-    fscanf(fp,"%*s %d",&REFRESH_RATE_S);
-    fscanf(fp,"%*s %d",&REFRESH_FOR_S);
+  if (fscanf(fp,"%*s = %d",&STOP_AFTER_S)!=EOF){
+    fscanf(fp,"%*s = %d",&REFRESH_RATE_S);
+    fscanf(fp,"%*s = %d",&REFRESH_FOR_S);
   }
   else{
     perror("time.conf is empty");
@@ -142,7 +142,7 @@ int main(int argc, char *argv[])
   wd = inotify_add_watch( fd, path_notif, IN_MODIFY);
 
   
-  printf("--Launched power_up.--\n\n");
+  printf("--Launched power_up.--\n");
   get_pid();
   
   refresh_fp = fopen(path_refresh_list_pid,"r");
@@ -152,7 +152,6 @@ int main(int argc, char *argv[])
   while (fscanf(refresh_fp, "%d", &pid)>0){
     kill(pid,SIGSTOP);
   }
-  //refresh_active=false;
   changed_refresh_status = time(NULL);
   fclose(refresh_fp);
   
@@ -177,25 +176,21 @@ int main(int argc, char *argv[])
       // printf("error case in select timed out\n");
       handle_applications(STOP_AFTER_S, REFRESH_RATE_S, REFRESH_FOR_S, count, verbose_bool);
     /* timed out! */
-    else if (FD_ISSET (fd, &rfds)) /* inotify events are available! */
-      {
-        //printf("Inotify events available\n");
-	i=0;
-	length = read( fd, buffer, EVENT_BUF_LEN );
-	if ( length < 0 ) {
-	  perror( "read" );
-	}  
-	
-	while ( i < length ) {     struct inotify_event *event = ( struct inotify_event * ) &buffer[ i ];     if ( event->len ) {
-	    if ( event->mask & IN_MODIFY ) {
-	      //Pausing and refreshing apps
-	      handle_applications(STOP_AFTER_S, REFRESH_RATE_S, REFRESH_FOR_S, count, verbose_bool);
-	      //
-	    }
-	    i += EVENT_SIZE + event->len;
+    else if (FD_ISSET (fd, &rfds)){
+      i=0;
+      length = read( fd, buffer, EVENT_BUF_LEN );
+      if ( length < 0 ) {
+	perror( "read" );
+      }  
+      
+      while ( i < length ) {     struct inotify_event *event = ( struct inotify_event * ) &buffer[ i ];     if ( event->len ) {
+	  if ( event->mask & IN_MODIFY ) {
+	    handle_applications(STOP_AFTER_S, REFRESH_RATE_S, REFRESH_FOR_S, count, verbose_bool);
 	  }
-	  //rewind(fp);
+	  i += EVENT_SIZE + event->len;
 	}
+	//rewind(fp);
       }
+    }
   }
 }
