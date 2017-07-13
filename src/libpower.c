@@ -422,13 +422,13 @@ void get_pid(void){
   refresh = fopen(path_refresh_list,"r");
   
   while (fscanf(black,"%s",name)>0){
-    sprintf(get_pid,"pgrep -i %s > $XDG_RUNTIME_DIR/black_list_pid.conf",name);
+    sprintf(get_pid,"pgrep %s > $XDG_RUNTIME_DIR/black_list_pid.conf",name);
     system(get_pid);
   }
   fclose(black);
   
   while (fscanf(refresh,"%s",name)>0){
-    sprintf(get_pid,"pgrep -i %s > $XDG_RUNTIME_DIR/refresh_list_pid.conf",name);
+    sprintf(get_pid,"pgrep %s > $XDG_RUNTIME_DIR/refresh_list_pid.conf",name);
     system(get_pid);
   }
   fclose(refresh);
