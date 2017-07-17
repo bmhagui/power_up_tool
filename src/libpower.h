@@ -30,18 +30,18 @@ struct Liste_toggle
 };
 
 typedef struct Proc Proc;
-struct Proc{
-  pid_t pid;
-  time_t time_added;
-  bool paused;
-  Proc *next;
+struct Proc {
+    pid_t pid;
+    time_t time_added;
+    bool paused;
+    Proc *next;
 };
 
 typedef struct Stop_list Stop_list;
-struct Stop_list{
-  bool refresh_active;
-  int count_procs;
-  Proc *first;
+struct Stop_list {
+    bool refresh_active;
+    int count_procs;
+    Proc *first;
 };
 
 struct sigaction action;
@@ -49,9 +49,9 @@ struct sigaction action;
 Stop_list *stop_list;
 
 char path_black_list[100], verbose[100], path_runtime_dir[100],
-  path_refresh_list[100], path_refresh_list_pid[100], path_config_powerup[100],
-  path_open_windows[100], path_window_change[100], path_notif[100], path_time[100],
-  app_name[100], read_name[100], tmp[100];
+     path_refresh_list[100], path_refresh_list_pid[100], path_config_powerup[100],
+     path_open_windows[100], path_window_change[100], path_notif[100], path_time[100],
+     app_name[100], read_name[100], tmp[100];
 
 pid_t pid, new_active_pid, old_active_pid;
 int fd, wd;
@@ -98,3 +98,5 @@ void delete_unused_pid(Stop_list *list);
 void get_pid(void);
 
 void handle_applications(int STOP_AFTER_S,int REFRESH_RATE_S, int REFRESH_FOR_S, int count, bool verbose_bool);
+
+void get_time_out(int REFRESH_RATE_S, int REFRESH_FOR_S, int STOP_AFTER_S, Stop_list *list, int *timer);
