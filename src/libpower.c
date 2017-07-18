@@ -433,7 +433,6 @@ void handle_applications(int STOP_AFTER_S,int REFRESH_RATE_S, int REFRESH_FOR_S,
     get_pid();
     system("wmctrl -l -p | grep -vf $XDG_RUNTIME_DIR/black_list_pid.conf | grep -vf $XDG_RUNTIME_DIR/refresh_list_pid.conf | awk '{print $2,$3}' | grep -v - | awk '{print $2}' | sort -u -b > $XDG_RUNTIME_DIR/open_windows.conf");
 
-    //STOP
     if (( pipe_wc = popen("grep -cve '^\\s*$' $XDG_RUNTIME_DIR/open_windows.conf", "r")) == NULL) {
         perror("popen");
         exit(1);
@@ -441,7 +440,6 @@ void handle_applications(int STOP_AFTER_S,int REFRESH_RATE_S, int REFRESH_FOR_S,
     fscanf(pipe_wc,"%d",&count);
     pclose(pipe_wc);
 
-    //affiche_stop_liste(stop_list);
     if (count != 0) {
         if (count==stop_list->count_procs) {
             equal_count(stop_list, new_active_pid, STOP_AFTER_S, verbose_bool);
@@ -456,14 +454,12 @@ void handle_applications(int STOP_AFTER_S,int REFRESH_RATE_S, int REFRESH_FOR_S,
         }
     }
     //Refreshing if needed here;
-    //printf("Refresh_active: %d\n",);
     time_now=time(NULL);
     if (time_now-changed_refresh_status >= REFRESH_RATE_S && !stop_list->refresh_active) {
         refresh_fp = fopen(path_refresh_list_pid,"r");
         if(refresh_fp==NULL) {
             perror("cannot open file refresh_list_pid");
         }
-        //printf("Activating refresh list\n");
         while (fscanf(refresh_fp, "%d", &pid)>0) {
             kill(pid,SIGCONT);
         }
@@ -476,7 +472,6 @@ void handle_applications(int STOP_AFTER_S,int REFRESH_RATE_S, int REFRESH_FOR_S,
         if(refresh_fp==NULL) {
             perror("cannot open file refresh_list_pid");
         }
-        //printf("Pausing refresh list\n");
         while (fscanf(refresh_fp, "%d", &pid)>0) {
             if (pid!=new_active_pid) {
                 kill(pid,SIGSTOP);
@@ -488,29 +483,6 @@ void handle_applications(int STOP_AFTER_S,int REFRESH_RATE_S, int REFRESH_FOR_S,
     }
     //refresh over
 }
-
-/*void get_time_out(int REFRESH_RATE_S,int REFRESH_FOR_S, int STOP_AFTER_S, Stop_list *list, int *timer){
-  int min=100;
-  int stop;
-  time_t time_now = time(NULL);
-  Proc *proc = list->first;
-  while (proc != NULL){
-    if(proc->paused){
-      stop = (STOP_AFTER_S-time_now-(proc->time_added));
-      if (stop>0 && stop<min){
-	min = stop;
-      }
-    }
-    proc = proc->next;
-  }
-  if (list->refresh_active && REFRESH_FOR_S<min){
-    min = REFRESH_FOR_S;
-    }
-  else if (!(list->refresh_active) && REFRESH_RATE_S<min){
-  min = REFRESH_RATE_S;
-    }
-  *timer=min;
-  }*/
 
 void get_time_out(int REFRESH_RATE_S,int REFRESH_FOR_S, int STOP_AFTER_S, Stop_list *list, int *timer) {
     bool paused_app=false;
@@ -531,5 +503,9 @@ void get_time_out(int REFRESH_RATE_S,int REFRESH_FOR_S, int STOP_AFTER_S, Stop_l
     }
     else if (!(list->refresh_active) && REFRESH_RATE_S<*timer) {
         *timer = REFRESH_RATE_S;
+    }
+
+    if (*timer == 0){
+      *timer=60;
     }
 }
